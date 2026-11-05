@@ -10,3 +10,6 @@ export * from "./product-grid/product-grid-skeleton";
 export * from "./product-visual/product-visual";
 export * from "./scent-notes/scent-notes";
 export * from "./variant-picker/variant-picker";
+export * from "./product-browser/product-browser";
+export * from "./product-page/product-page-content";
+export * from "./collection-page/collection-page-content";

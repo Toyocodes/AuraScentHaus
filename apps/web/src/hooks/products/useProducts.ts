@@ -7,7 +7,7 @@ import { useAxios } from "../useAxios";
 import type { ProductListParams, ProductListResponse } from "./types";
 
 /** Paginated storefront products. Keeps the previous page on screen while the next one loads. */
-export function useProducts(params: ProductListParams = {}) {
+export function useProducts(params: ProductListParams = {}, options: { enabled?: boolean } = {}) {
   const axios = useAxios();
 
   return useQuery({
@@ -17,5 +17,6 @@ export function useProducts(params: ProductListParams = {}) {
       return data;
     },
     placeholderData: keepPreviousData,
+    enabled: options.enabled,
   });
 }

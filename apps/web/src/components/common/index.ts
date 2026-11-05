@@ -8,3 +8,4 @@ export * from "./quantity-stepper";
 export * from "./search-form";
 export * from "./section-heading";
 export * from "./summary-row";
+export * from "./query-error";
