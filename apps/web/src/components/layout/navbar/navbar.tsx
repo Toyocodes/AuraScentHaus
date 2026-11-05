@@ -9,9 +9,10 @@ interface NavbarProps {
   user?: Pick<UserDTO, "email" | "name" | "role"> | null;
   cartCount?: number;
   onSignOut?: () => void;
+  isUserPending?: boolean;
 }
 
-export function Navbar({ user = null, cartCount = 0, onSignOut }: NavbarProps) {
+export function Navbar({ user = null, cartCount = 0, onSignOut, isUserPending }: NavbarProps) {
   return (
     <header className="sticky top-0 z-40">
       <div className="bg-espresso py-2 text-center text-[0.6875rem] tracking-[0.28em] text-espresso-foreground/85 uppercase">
@@ -40,7 +41,7 @@ export function Navbar({ user = null, cartCount = 0, onSignOut }: NavbarProps) {
           </Link>
 
           <div className="flex items-center justify-end gap-1">
-            <AccountMenu user={user} onSignOut={onSignOut} />
+            <AccountMenu user={user} onSignOut={onSignOut} isPending={isUserPending} />
             <CartButton count={cartCount} />
           </div>
         </nav>

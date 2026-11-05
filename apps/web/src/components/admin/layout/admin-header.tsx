@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { AdminSignOut } from "./admin-sign-out";
 
 export function AdminHeader() {
   return (
@@ -8,9 +9,12 @@ export function AdminHeader() {
           Aura<span className="text-gold">Scent</span>Haus{" "}
           <span className="ml-2 text-[0.625rem] tracking-[0.3em] text-espresso-foreground/60">Admin</span>
         </Link>
-        <Link href="/" className="text-xs tracking-[0.2em] text-espresso-foreground/70 uppercase hover:text-espresso-foreground">
-          View store →
-        </Link>
+        <div className="flex items-center gap-6">
+          <Link href="/" className="text-xs tracking-[0.2em] text-espresso-foreground/70 uppercase hover:text-espresso-foreground">
+            View store →
+          </Link>
+          <AdminSignOut />
+        </div>
       </div>
     </header>
   );

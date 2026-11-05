@@ -1,10 +1,10 @@
 import { SiteShell } from "@/components/layout";
-import { mockCart, mockUser } from "@/mocks";
+import { mockCart } from "@/mocks";
 
-/** Sample data for now. Later: `useMe()` for the user and `useCart()` for the count. */
+/** The navbar shows the real signed-in user. The bag count is sample data until the cart is connected. */
 export default function ShopLayout({ children }: LayoutProps<"/">) {
   return (
-    <SiteShell user={mockUser} cartCount={mockCart.itemCount}>
+    <SiteShell cartCount={mockCart.itemCount}>
       {children}
     </SiteShell>
   );

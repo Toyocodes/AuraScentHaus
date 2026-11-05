@@ -1,21 +1,21 @@
-import { ACCOUNT_NAV } from "@/components/account";
+import { ACCOUNT_NAV, AccountGreeting } from "@/components/account";
+import { RequireAuth } from "@/components/auth";
 import { SideNav, SiteShell } from "@/components/layout";
-import { mockCart, mockUser } from "@/mocks";
+import { mockCart } from "@/mocks";
 
-/** Sample data for now. Later: `useMe()` / `useCart()`, and send signed-out visitors to /login. */
+/** Signed-in customers only. The bag count is sample data until the cart is connected. */
 export default function AccountLayout({ children }: LayoutProps<"/account">) {
   return (
-    <SiteShell user={mockUser} cartCount={mockCart.itemCount}>
-      <div className="container-page grid gap-10 py-16 md:grid-cols-[14rem_1fr] lg:gap-16">
-        <aside className="space-y-6">
-          <div className="space-y-2">
-            <p className="eyebrow text-gold">My account</p>
-            <p className="font-heading text-3xl">{mockUser.name ?? "Welcome"}</p>
-          </div>
-          <SideNav items={ACCOUNT_NAV} />
-        </aside>
-        <section className="min-w-0">{children}</section>
-      </div>
+    <SiteShell cartCount={mockCart.itemCount}>
+      <RequireAuth>
+        <div className="container-page grid gap-10 py-16 md:grid-cols-[14rem_1fr] lg:gap-16">
+          <aside className="space-y-6">
+            <AccountGreeting />
+            <SideNav items={ACCOUNT_NAV} />
+          </aside>
+          <section className="min-w-0">{children}</section>
+        </div>
+      </RequireAuth>
     </SiteShell>
   );
 }

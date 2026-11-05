@@ -1,16 +1,18 @@
-import type { ComponentProps, ReactNode } from "react";
+import type { ReactNode } from "react";
 import { Footer } from "../footer/footer";
-import { Navbar } from "../navbar/navbar";
+import { SiteNavbar } from "../navbar/site-navbar";
 
-interface SiteShellProps extends ComponentProps<typeof Navbar> {
+interface SiteShellProps {
   children: ReactNode;
+  /** Sample count until the cart is connected (next step: `useCart()` inside the navbar). */
+  cartCount?: number;
 }
 
-/** Navbar + page + footer. Navbar props (user, cartCount) pass straight through. */
-export function SiteShell({ children, ...navbar }: SiteShellProps) {
+/** Navbar + page + footer. The navbar reads the signed-in user itself. */
+export function SiteShell({ children, cartCount }: SiteShellProps) {
   return (
     <>
-      <Navbar {...navbar} />
+      <SiteNavbar cartCount={cartCount} />
       <main className="flex-1">{children}</main>
       <Footer />
     </>

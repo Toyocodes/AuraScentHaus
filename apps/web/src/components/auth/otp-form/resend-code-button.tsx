@@ -22,8 +22,12 @@ export function ResendCodeButton({ onResend }: { onResend?: () => void | Promise
       className="px-0"
       disabled={cooldown > 0}
       onClick={async () => {
-        await onResend?.();
-        setCooldown(RESEND_SECONDS);
+        try {
+          await onResend?.();
+          setCooldown(RESEND_SECONDS);
+        } catch {
+          // The caller shows the error; the button stays available to try again.
+        }
       }}
     >
       {cooldown > 0 ? `Resend in ${cooldown}s` : "Resend code"}

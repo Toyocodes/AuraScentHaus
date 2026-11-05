@@ -17,9 +17,19 @@ interface AccountMenuProps {
   /** null = signed out (shows "Sign in"). */
   user: Pick<UserDTO, "email" | "name" | "role"> | null;
   onSignOut?: () => void;
+  /** Still checking the session: show a quiet placeholder instead of flashing "Sign in". */
+  isPending?: boolean;
 }
 
-export function AccountMenu({ user, onSignOut }: AccountMenuProps) {
+export function AccountMenu({ user, onSignOut, isPending }: AccountMenuProps) {
+  if (isPending) {
+    return (
+      <Button variant="ghost" size="icon" disabled aria-label="Account">
+        <User className="opacity-40" />
+      </Button>
+    );
+  }
+
   if (!user) {
     return (
       <Button variant="ghost" size="sm" asChild>

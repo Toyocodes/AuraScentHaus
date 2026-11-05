@@ -9,12 +9,14 @@ import { Form } from "@/components/ui/form";
 interface EmailFormProps {
   defaultEmail?: string;
   isPending?: boolean;
+  /** A request error to show under the field (e.g. too many attempts). */
+  errorMessage?: string;
   /** Wire to `useRequestCode().mutateAsync`, then go to /verify. */
   onSubmit?: (values: RequestCodeInput) => void | Promise<void>;
 }
 
 /** Step 1 of passwordless login: enter an email and get a 6-digit code. */
-export function EmailForm({ defaultEmail = "", isPending, onSubmit }: EmailFormProps) {
+export function EmailForm({ defaultEmail = "", isPending, errorMessage, onSubmit }: EmailFormProps) {
   const form = useForm({
     resolver: zodResolver(requestCodeSchema),
     defaultValues: { email: defaultEmail },
@@ -22,7 +24,13 @@ export function EmailForm({ defaultEmail = "", isPending, onSubmit }: EmailFormP
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(async (values) => onSubmit?.(values))} className="space-y-4" noValidate>
+      <form onSubmit={form.handleSubmit(async (values) => {
+        try {
+          await onSubmit?.(values);
+        } catch {
+          // Shown through `errorMessage`.
+        }
+      })} className="space-y-4" noValidate>
         <FormInput<RequestCodeInput>
           name="email"
           label="Email"
@@ -32,6 +40,11 @@ export function EmailForm({ defaultEmail = "", isPending, onSubmit }: EmailFormP
           placeholder="you@example.com"
           autoFocus
         />
+        {errorMessage && (
+          <p role="alert" className="text-sm text-destructive">
+            {errorMessage}
+          </p>
+        )}
         <SubmitButton className="w-full" size="lg" isPending={isPending} pendingLabel="Sending code…">
           Continue with email
         </SubmitButton>

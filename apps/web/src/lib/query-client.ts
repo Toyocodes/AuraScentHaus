@@ -1,9 +1,20 @@
-import { QueryClient } from "@tanstack/react-query";
+import { MutationCache, QueryCache, QueryClient } from "@tanstack/react-query";
 import { getErrorStatus } from "@/hooks/helper/errors";
+import { queryKeys } from "@/hooks/helper/query-keys";
 
 /** App-wide TanStack Query defaults. */
 export function makeQueryClient() {
-  return new QueryClient({
+  /**
+   * Any 401 means the session has ended (expired, or signed out on another device).
+   * Marking "me" as signed out lets the navbar update and <RequireAuth> send the visitor to /login.
+   */
+  const onError = (error: unknown) => {
+    if (getErrorStatus(error) === 401) queryClient.setQueryData(queryKeys.auth.me(), null);
+  };
+
+  const queryClient: QueryClient = new QueryClient({
+    queryCache: new QueryCache({ onError }),
+    mutationCache: new MutationCache({ onError }),
     defaultOptions: {
       queries: {
         staleTime: 30 * 1000,
@@ -20,4 +31,6 @@ export function makeQueryClient() {
       },
     },
   });
+
+  return queryClient;
 }

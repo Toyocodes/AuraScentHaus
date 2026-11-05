@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import { OtpForm } from "@/components/auth";
+import { Suspense } from "react";
+import { OtpForm, SignInVerify } from "@/components/auth";
 
 export const metadata: Metadata = { title: "Enter your code" };
 
@@ -10,8 +11,9 @@ export default function VerifyPage() {
         <p className="eyebrow text-gold">One more step</p>
         <h1 className="text-4xl">Check your email</h1>
       </div>
-      {/* Not connected yet: `useVerifyCode()` + `useMergeCart()`, and `useRequestCode()` for resend */}
-      <OtpForm email="ada@example.com" />
+      <Suspense fallback={<OtpForm isPending />}>
+        <SignInVerify />
+      </Suspense>
     </div>
   );
 }

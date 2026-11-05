@@ -14,6 +14,8 @@ interface OtpFormProps {
   /** The address the code was sent to (from step 1). */
   email?: string;
   isPending?: boolean;
+  /** A request error, e.g. "That code is wrong or has expired." */
+  errorMessage?: string;
   /** Wire to `useVerifyCode().mutateAsync({ email, code })`. */
   onSubmit?: (values: OtpValues) => void | Promise<void>;
   /** Wire to `useRequestCode().mutateAsync({ email })`. */
@@ -21,13 +23,20 @@ interface OtpFormProps {
 }
 
 /** Step 2 of login: type the emailed code. It submits by itself once all 6 digits are in. */
-export function OtpForm({ email, isPending, onSubmit, onResend }: OtpFormProps) {
+export function OtpForm({ email, isPending, errorMessage, onSubmit, onResend }: OtpFormProps) {
   const form = useForm({
     resolver: zodResolver(otpSchema),
     defaultValues: { code: "" },
   });
 
-  const submit = form.handleSubmit(async (values) => onSubmit?.(values));
+  const submit = form.handleSubmit(async (values) => {
+    try {
+      await onSubmit?.(values);
+    } catch {
+      // Clear the boxes so the next attempt starts fresh. The message comes from `errorMessage`.
+      form.reset({ code: "" });
+    }
+  });
 
   return (
     <Form {...form}>
@@ -60,6 +69,11 @@ export function OtpForm({ email, isPending, onSubmit, onResend }: OtpFormProps) 
                 </InputOTP>
               </FormControl>
               <FormMessage className="text-center" />
+              {errorMessage && !fieldState.error && (
+                <p role="alert" className="text-center text-sm text-destructive">
+                  {errorMessage}
+                </p>
+              )}
             </FormItem>
           )}
         />

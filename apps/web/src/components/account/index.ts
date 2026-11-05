@@ -4,3 +4,4 @@ export * from "./address-book/address-form";
 export * from "./profile-form/profile-form";
 export * from "./profile-form/profile-schema";
 export * from "./sign-out-everywhere/sign-out-everywhere";
+export * from "./account-greeting/account-greeting";
