@@ -1,14 +1,20 @@
+import { Suspense } from "react";
 import type { Metadata } from "next";
-import { PaymentResult } from "@/components/checkout";
-import { mockOrders } from "@/mocks";
+import { RequireAuth } from "@/components/auth";
+import { PaymentCallback, PaymentResult } from "@/components/checkout";
 
 export const metadata: Metadata = { title: "Payment status" };
 
-/** Sample data for now. Later: read ?reference= and pass `useVerifyPayment(reference).data` as `order`. */
+/** Paystack sends the shopper here after paying. */
 export default function CheckoutCallbackPage() {
   return (
     <div className="container-page py-16">
-      <PaymentResult order={mockOrders[0]} />
+      <RequireAuth loading={<PaymentResult />}>
+        {/* ?reference= is only known at request time. */}
+        <Suspense fallback={<PaymentResult />}>
+          <PaymentCallback />
+        </Suspense>
+      </RequireAuth>
     </div>
   );
 }
