@@ -1,0 +1,332 @@
+// AuraScentHaus database schema
+// Docs: https://pris.ly/d/prisma-schema
+//
+// Money is stored as integer KOBO (₦1 = 100 kobo), the unit Paystack uses.
+// Connection URLs live in prisma.config.ts (CLI) and src/config/prisma.ts (runtime).
+
+generator client {
+  provider            = "prisma-client"
+  output              = "../src/generated/prisma"
+  moduleFormat        = "esm"
+  importFileExtension = "js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ─── Enums ───────────────────────────────────────────────────
+
+enum Role {
+  CUSTOMER
+  ADMIN
+  SUPER_ADMIN
+}
+
+enum Gender {
+  MEN
+  WOMEN
+  UNISEX
+}
+
+enum OrderStatus {
+  PENDING
+  PAID
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}
+
+enum PaymentStatus {
+  PENDING
+  SUCCESS
+  FAILED
+  ABANDONED
+}
+
+/// Where the sale happened.
+enum OrderChannel {
+  ONLINE // checkout on the website (Paystack)
+  IN_STORE // entered by an admin at the shop counter
+}
+
+enum PaymentMethod {
+  PAYSTACK
+  CASH
+  CARD // POS terminal
+  TRANSFER
+}
+
+// ─── Auth ────────────────────────────────────────────────────
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  phone     String?
+  role      Role     @default(CUSTOMER)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  sessions       Session[]
+  cart           Cart?
+  orders         Order[]   @relation("CustomerOrders")
+  /// In-store sales this admin made.
+  attendedOrders Order[]   @relation("OrderAttendant")
+  addresses      Address[]
+
+  @@map("users")
+}
+
+/// One-time email login codes. Only an HMAC of the code is stored.
+model OtpCode {
+  id         String    @id @default(cuid())
+  email      String
+  codeHash   String
+  expiresAt  DateTime
+  attempts   Int       @default(0)
+  consumedAt DateTime?
+  ip         String?
+  createdAt  DateTime  @default(now())
+
+  @@index([email, createdAt])
+  @@map("otp_codes")
+}
+
+/// Server-side session. The browser holds the raw token in an httpOnly cookie;
+/// only its SHA-256 hash is stored, so a DB leak can't be replayed.
+model Session {
+  id         String   @id @default(cuid())
+  tokenHash  String   @unique
+  userId     String
+  expiresAt  DateTime
+  lastUsedAt DateTime @default(now())
+  userAgent  String?
+  ip         String?
+  createdAt  DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("sessions")
+}
+
+// ─── Catalog ─────────────────────────────────────────────────
+
+model Category {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  description String?
+  imageUrl    String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  products Product[]
+
+  @@map("categories")
+}
+
+model Product {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  brand       String?
+  description String   @default("")
+  gender      Gender   @default(UNISEX)
+  topNotes    String[]
+  heartNotes  String[]
+  baseNotes   String[]
+  isActive    Boolean  @default(true)
+  isFeatured  Boolean  @default(false)
+  /// Cheapest active variant price (kobo). Kept in sync by the API whenever
+  /// variants change, so listings can sort/filter by price cheaply.
+  priceFrom   Int?
+  categoryId  String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  category Category?        @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  variants ProductVariant[]
+  images   ProductImage[]
+
+  @@index([isActive, isFeatured])
+  @@index([categoryId])
+  @@map("products")
+}
+
+/// A purchasable size of a perfume (e.g. 50ml / 100ml), each with its own price and stock.
+model ProductVariant {
+  id             String   @id @default(cuid())
+  productId      String
+  sizeMl         Int
+  sku            String   @unique
+  price          Int // kobo
+  compareAtPrice Int? // kobo, shows a "was" price
+  stock          Int      @default(0)
+  isActive       Boolean  @default(true)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  product    Product     @relation(fields: [productId], references: [id], onDelete: Cascade)
+  cartItems  CartItem[]
+  orderItems OrderItem[]
+
+  @@unique([productId, sizeMl])
+  @@map("product_variants")
+}
+
+model ProductImage {
+  id          String   @id @default(cuid())
+  productId   String
+  url         String
+  storagePath String // path inside the Supabase Storage bucket (for deletion)
+  alt         String?
+  position    Int      @default(0)
+  createdAt   DateTime @default(now())
+
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@index([productId, position])
+  @@map("product_images")
+}
+
+// ─── Cart (server-side, so it follows the user to every device) ───
+
+model Cart {
+  id        String   @id @default(cuid())
+  userId    String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user  User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items CartItem[]
+
+  @@map("carts")
+}
+
+model CartItem {
+  id        String   @id @default(cuid())
+  cartId    String
+  variantId String
+  quantity  Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  cart    Cart           @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  variant ProductVariant @relation(fields: [variantId], references: [id], onDelete: Cascade)
+
+  @@unique([cartId, variantId])
+  @@map("cart_items")
+}
+
+// ─── Addresses & Orders ──────────────────────────────────────
+
+model Address {
+  id         String   @id @default(cuid())
+  userId     String
+  fullName   String
+  phone      String
+  line1      String
+  line2      String?
+  city       String
+  state      String
+  country    String   @default("Nigeria")
+  postalCode String?
+  isDefault  Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("addresses")
+}
+
+model Order {
+  id            String        @id @default(cuid())
+  orderNumber   String        @unique
+  /// null = walk-in customer without an account (in-store only)
+  userId        String?
+  status        OrderStatus   @default(PENDING)
+  channel       OrderChannel  @default(ONLINE)
+  paymentMethod PaymentMethod @default(PAYSTACK)
+  subtotal      Int // kobo
+  shippingFee   Int           @default(0) // kobo
+  total         Int // kobo
+  currency      String        @default("NGN")
+  note          String?
+
+  /// Contact for the order (walk-in buyer, or a copy of the customer's name/phone)
+  contactName  String?
+  contactPhone String?
+
+  /// The admin who made an in-store sale. attendantName is their first name, saved
+  /// at creation, so it stays correct even if the admin later leaves or is renamed.
+  attendedById  String?
+  attendantName String?
+
+  // Delivery address snapshot (copied so later address edits don't change past orders).
+  // All null = collected in store.
+  shipFullName   String?
+  shipPhone      String?
+  shipLine1      String?
+  shipLine2      String?
+  shipCity       String?
+  shipState      String?
+  shipCountry    String?
+  shipPostalCode String?
+
+  paidAt    DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  user       User?       @relation("CustomerOrders", fields: [userId], references: [id], onDelete: Restrict)
+  attendedBy User?       @relation("OrderAttendant", fields: [attendedById], references: [id], onDelete: SetNull)
+  items      OrderItem[]
+  payment    Payment?
+
+  @@index([userId, createdAt])
+  @@index([status, createdAt])
+  @@index([paidAt])
+  @@index([attendedById])
+  @@map("orders")
+}
+
+/// Price/name snapshot at purchase time.
+model OrderItem {
+  id          String  @id @default(cuid())
+  orderId     String
+  variantId   String?
+  productName String
+  sizeMl      Int
+  imageUrl    String?
+  unitPrice   Int // kobo
+  quantity    Int
+  lineTotal   Int // kobo
+
+  order   Order           @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  variant ProductVariant? @relation(fields: [variantId], references: [id], onDelete: SetNull)
+
+  @@index([orderId])
+  @@map("order_items")
+}
+
+model Payment {
+  id          String        @id @default(cuid())
+  orderId     String        @unique
+  reference   String        @unique // Paystack reference, or POS-<orderNumber> for in-store sales
+  amount      Int // kobo
+  currency    String        @default("NGN")
+  status      PaymentStatus @default(PENDING)
+  channel     String? // card, bank, ussd, transfer...
+  paidAt      DateTime?
+  gatewayData Json? // last verify/webhook payload from Paystack
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@map("payments")
+}

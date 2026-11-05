@@ -1,0 +1,101 @@
+import {
+  ORDER_STATUS_TRANSITIONS,
+  type OrderQuery,
+  type OrderStatus,
+  type PaginationInput,
+} from "@aurascenthaus/shared";
+import { prisma } from "../../config/prisma.js";
+import type { Prisma } from "../../generated/prisma/client.js";
+import { ApiError } from "../../utils/api-error.js";
+import { paginated, toSkipTake } from "../../utils/pagination.js";
+import { orderInclude, toOrderDTO } from "./orders.mapper.js";
+
+// ─── Customer ────────────────────────────────────────────────
+
+/** Unpaid checkout attempts are hidden from the customer's order history. */
+const visibleToCustomer: Prisma.OrderWhereInput = { status: { not: "PENDING" } };
+
+export async function listMyOrders(userId: string, query: PaginationInput) {
+  const where: Prisma.OrderWhereInput = { userId, ...visibleToCustomer };
+  const [rows, total] = await prisma.$transaction([
+    prisma.order.findMany({ where, include: orderInclude, orderBy: { createdAt: "desc" }, ...toSkipTake(query) }),
+    prisma.order.count({ where }),
+  ]);
+  return paginated(
+    rows.map((o) => toOrderDTO(o)),
+    total,
+    query,
+  );
+}
+
+export async function getMyOrder(userId: string, orderId: string) {
+  const order = await prisma.order.findFirst({ where: { id: orderId, userId }, include: orderInclude });
+  if (!order) throw ApiError.notFound("Order");
+  return toOrderDTO(order);
+}
+
+// ─── Admin ───────────────────────────────────────────────────
+
+export async function adminListOrders(query: OrderQuery) {
+  const where: Prisma.OrderWhereInput = {
+    ...(query.status && { status: query.status }),
+    ...(query.search && {
+      OR: [
+        { orderNumber: { contains: query.search, mode: "insensitive" } },
+        { user: { email: { contains: query.search, mode: "insensitive" } } },
+        { shipFullName: { contains: query.search, mode: "insensitive" } },
+        { contactName: { contains: query.search, mode: "insensitive" } },
+        { contactPhone: { contains: query.search } },
+      ],
+    }),
+  };
+  const [rows, total] = await prisma.$transaction([
+    prisma.order.findMany({ where, include: orderInclude, orderBy: { createdAt: "desc" }, ...toSkipTake(query) }),
+    prisma.order.count({ where }),
+  ]);
+  return paginated(
+    rows.map((o) => toOrderDTO(o, { includeCustomer: true })),
+    total,
+    query,
+  );
+}
+
+export async function adminGetOrder(orderId: string) {
+  const order = await prisma.order.findUnique({ where: { id: orderId }, include: orderInclude });
+  if (!order) throw ApiError.notFound("Order");
+  return toOrderDTO(order, { includeCustomer: true });
+}
+
+/**
+ * Moves an order through its lifecycle (see ORDER_STATUS_TRANSITIONS).
+ * Cancelling puts the stock back: for online orders only once paid (that is when stock
+ * is taken), for in-store orders always (stock is taken when the sale is recorded). Refunds are done manually
+ * in the Paystack dashboard (or add a refund call here).
+ */
+export async function adminUpdateOrderStatus(orderId: string, next: OrderStatus) {
+  const updated = await prisma.$transaction(async (tx) => {
+    const order = await tx.order.findUnique({ where: { id: orderId }, include: { items: true } });
+    if (!order) throw ApiError.notFound("Order");
+
+    if (!ORDER_STATUS_TRANSITIONS[order.status].includes(next)) {
+      throw ApiError.badRequest(`Can't change an order from ${order.status} to ${next}`, "INVALID_TRANSITION", {
+        allowed: ORDER_STATUS_TRANSITIONS[order.status],
+      });
+    }
+
+    const stockWasTaken = order.paidAt !== null || order.channel === "IN_STORE";
+    if (next === "CANCELLED" && stockWasTaken) {
+      for (const item of order.items) {
+        if (!item.variantId) continue;
+        await tx.productVariant.updateMany({
+          where: { id: item.variantId },
+          data: { stock: { increment: item.quantity } },
+        });
+      }
+    }
+
+    return tx.order.update({ where: { id: orderId }, data: { status: next }, include: orderInclude });
+  });
+
+  return toOrderDTO(updated, { includeCustomer: true });
+}
