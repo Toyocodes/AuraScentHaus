@@ -4,6 +4,8 @@ import type {
   CartItemDTO,
   MergeCartInput,
   UpdateCartItemInput,
+  ProductDetailDTO,
+  VariantDTO,
 } from "@aurascenthaus/shared";
 import type { DataResponse } from "../helper/types";
 
@@ -16,3 +18,10 @@ export interface UpdateCartItemVariables extends UpdateCartItemInput {
 
 /** Every cart endpoint returns the whole updated cart. */
 export type CartResponse = DataResponse<CartDTO>;
+
+/** useBag().add: the product and size picked on the product page. */
+export interface BagAddInput {
+  product: Pick<ProductDetailDTO, "id" | "name" | "slug" | "images">;
+  variant: Pick<VariantDTO, "id" | "sizeMl" | "price" | "stock">;
+  quantity?: number;
+}

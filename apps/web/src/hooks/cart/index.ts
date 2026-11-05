@@ -5,3 +5,4 @@ export * from "./useUpdateCartItem";
 export * from "./useRemoveCartItem";
 export * from "./useClearCart";
 export * from "./useMergeCart";
+export * from "./useBag";

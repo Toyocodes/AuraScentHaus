@@ -1,9 +1,13 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+import type { VariantDTO } from "@aurascenthaus/shared";
 import { EmptyState, QueryError, SectionHeading } from "@/components/common";
 import { Button } from "@/components/ui/button";
-import { getErrorStatus } from "@/hooks/helper/errors";
+import { useBag } from "@/hooks/cart";
+import { getErrorMessage, getErrorStatus } from "@/hooks/helper/errors";
 import { useProduct, useProducts } from "@/hooks/products";
 import { ProductDetail } from "../product-detail/product-detail";
 import { ProductDetailSkeleton } from "../product-detail/product-detail-skeleton";
@@ -12,7 +16,9 @@ import { ProductGridSkeleton } from "../product-grid/product-grid-skeleton";
 
 /** The product page, connected to GET /products/:slug, with related perfumes below. */
 export function ProductPageContent({ slug }: { slug: string }) {
+  const router = useRouter();
   const { data: product, isPending, isError, error, refetch } = useProduct(slug);
+  const bag = useBag();
 
   if (isPending) return <ProductDetailSkeleton />;
 
@@ -35,8 +41,20 @@ export function ProductPageContent({ slug }: { slug: string }) {
 
   return (
     <div className="space-y-24">
-      {/* Add to bag is connected in the cart step. */}
-      <ProductDetail product={product} />
+      <ProductDetail
+        product={product}
+        isAdding={bag.isUpdating}
+        onAddToCart={async (variant: VariantDTO) => {
+          try {
+            await bag.add({ product, variant });
+            toast.success(`${product.name}, ${variant.sizeMl} ml added to your bag`, {
+              action: { label: "View bag", onClick: () => router.push("/cart") },
+            });
+          } catch (err) {
+            toast.error(getErrorMessage(err, "We couldn't add this to your bag."));
+          }
+        }}
+      />
       <RelatedProducts slug={slug} category={product.category?.slug} />
     </div>
   );
