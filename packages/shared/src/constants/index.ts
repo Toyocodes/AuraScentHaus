@@ -2,6 +2,7 @@ export * from "./roles.js";
 export * from "./permissions.js";
 export * from "./order-status.js";
 export * from "./scent.js";
+export * from "./sizes.js";
 
 export const CURRENCY = "NGN" as const;
 export const OTP_LENGTH = 6;

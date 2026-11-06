@@ -1,3 +1,4 @@
+import { formatSize } from "@aurascenthaus/shared";
 import {
   LOW_STOCK_THRESHOLD,
   ORDER_CHANNELS,
@@ -126,7 +127,7 @@ export async function getDashboardStats(rangeKey: StatsRangeKey, now = new Date(
     })),
     customers,
     products,
-    lowStock: lowStock.map((v) => ({ variantId: v.id, productName: v.product.name, sizeMl: v.sizeMl, stock: v.stock })),
+    lowStock: lowStock.map((v) => ({ variantId: v.id, productName: v.product.name, sizeMl: v.sizeMl, sizeLabel: formatSize(v.sizeMl, v.sizeUnit), stock: v.stock })),
     recentOrders: recent.map((o) => toOrderDTO(o, { includeCustomer: true })),
   };
 }

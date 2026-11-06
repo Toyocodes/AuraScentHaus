@@ -1,5 +1,5 @@
 /**
- * Dev seed: categories, a few perfumes, and your SUPER_ADMIN account.
+ * Dev seed: a few sample products and your SUPER_ADMIN account.
  * Run with: npm run db:seed
  *
  * Log in as the super admin by entering SEED_SUPER_ADMIN_EMAIL on /login.
@@ -27,16 +27,7 @@ async function main() {
     console.warn("SEED_SUPER_ADMIN_EMAIL not set, so no admin user was created.");
   }
 
-  const categories = [
-    { name: "Floral", slug: "floral", description: "Rose, jasmine, peony and bouquet blends." },
-    { name: "Woody", slug: "woody", description: "Sandalwood, cedar and vetiver." },
-    { name: "Oud", slug: "oud", description: "Rich, smoky agarwood scents." },
-    { name: "Fresh", slug: "fresh", description: "Citrus, aquatic and green notes." },
-  ];
-  for (const c of categories) {
-    await prisma.category.upsert({ where: { slug: c.slug }, update: {}, create: c });
-  }
-
+  // Categories and scent families are created by the migrations, so they exist already.
   const cat = async (slug: string) => (await prisma.category.findUniqueOrThrow({ where: { slug } })).id;
 
   const products = [
@@ -50,7 +41,8 @@ async function main() {
       heartNotes: ["Turkish Rose", "Jasmine"],
       baseNotes: ["Amber", "Oud", "Musk"],
       isFeatured: true,
-      category: "floral",
+      category: "perfumes",
+      scents: ["floral"],
       variants: [
         { sizeMl: 50, sku: "VRN-50", price: naira(45_000), stock: 25 },
         { sizeMl: 100, sku: "VRN-100", price: naira(78_000), stock: 12 },
@@ -66,7 +58,8 @@ async function main() {
       heartNotes: ["Cedarwood", "Leather"],
       baseNotes: ["Vetiver", "Tonka Bean"],
       isFeatured: true,
-      category: "woody",
+      category: "perfumes",
+      scents: ["woody"],
       variants: [
         { sizeMl: 50, sku: "CS-50", price: naira(42_000), stock: 30 },
         { sizeMl: 100, sku: "CS-100", price: naira(72_000), stock: 3 },
@@ -82,7 +75,8 @@ async function main() {
       heartNotes: ["Oud", "Rose"],
       baseNotes: ["Sandalwood", "Patchouli"],
       isFeatured: false,
-      category: "oud",
+      category: "perfumes",
+      scents: ["oud"],
       variants: [
         { sizeMl: 30, sku: "RO-30", price: naira(38_000), stock: 15 },
         { sizeMl: 75, sku: "RO-75", price: naira(85_000), compareAtPrice: naira(95_000), stock: 8 },
@@ -98,12 +92,44 @@ async function main() {
       heartNotes: ["Neroli", "Orange Blossom"],
       baseNotes: ["White Musk"],
       isFeatured: false,
-      category: "fresh",
+      category: "perfumes",
+      scents: ["fresh"],
       variants: [{ sizeMl: 100, sku: "CB-100", price: naira(35_000), stock: 40 }],
+    },
+    {
+      name: "Amber Hearth Candle",
+      slug: "amber-hearth-candle",
+      brand: "AuraScentHaus",
+      gender: "UNISEX" as const,
+      description: "A slow-burning soy candle of warm amber and smoked vanilla.",
+      topNotes: [],
+      heartNotes: [],
+      baseNotes: [],
+      isFeatured: false,
+      category: "scented-candles",
+      scents: ["amber", "gourmand"],
+      variants: [
+        { sizeMl: 200, sizeUnit: "G" as const, sku: "AHC-200", price: naira(28_000), stock: 20 },
+        { sizeMl: 300, sizeUnit: "G" as const, sku: "AHC-300", price: naira(38_000), stock: 10 },
+      ],
+    },
+    {
+      name: "Petal Veil Body Mist",
+      slug: "petal-veil-body-mist",
+      brand: "AuraScentHaus",
+      gender: "WOMEN" as const,
+      description: "A light veil of peony and pear for everyday wear.",
+      topNotes: [],
+      heartNotes: [],
+      baseNotes: [],
+      isFeatured: false,
+      category: "body-mists",
+      scents: ["floral", "fruity"],
+      variants: [{ sizeMl: 150, sku: "PV-150", price: naira(18_000), stock: 30 }],
     },
   ];
 
-  for (const { category, variants, ...p } of products) {
+  for (const { category, scents, variants, ...p } of products) {
     const exists = await prisma.product.findUnique({ where: { slug: p.slug } });
     if (exists) continue;
     await prisma.product.create({
@@ -112,11 +138,12 @@ async function main() {
         categoryId: await cat(category),
         priceFrom: Math.min(...variants.map((v) => v.price)),
         variants: { create: variants },
+        scentFamilies: { connect: scents.map((slug) => ({ slug })) },
       },
     });
   }
 
-  console.log(`🌸 Seeded ${categories.length} categories and ${products.length} products.`);
+  console.log(`🌸 Seeded ${products.length} products.`);
 }
 
 main()

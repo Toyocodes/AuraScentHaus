@@ -1,15 +1,3 @@
-export const SCENT_FAMILIES = [
-  "Floral",
-  "Woody",
-  "Oriental",
-  "Fresh",
-  "Citrus",
-  "Gourmand",
-  "Aquatic",
-  "Oud",
-] as const;
-export type ScentFamily = (typeof SCENT_FAMILIES)[number];
-
 export const GENDERS = ["MEN", "WOMEN", "UNISEX"] as const;
 export type Gender = (typeof GENDERS)[number];
 

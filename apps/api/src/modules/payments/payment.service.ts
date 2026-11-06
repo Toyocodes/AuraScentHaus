@@ -76,6 +76,7 @@ export async function startCheckout(
     variantId: i.variantId,
     productName: i.variant.product.name,
     sizeMl: i.variant.sizeMl,
+    sizeUnit: i.variant.sizeUnit,
     imageUrl: i.variant.product.images[0]?.url ?? null,
     unitPrice: i.variant.price,
     quantity: i.quantity,

@@ -17,18 +17,24 @@ export const updateRoleSchema = z.object({
 });
 export type UpdateRoleInput = z.infer<typeof updateRoleSchema>;
 
-export const addressSchema = z.object({
+const addressFields = z.object({
   fullName: z.string().trim().min(1).max(100),
   phone: phoneSchema,
   line1: z.string().trim().min(1).max(200),
   line2: z.string().trim().max(200).optional(),
   city: z.string().trim().min(1).max(100),
   state: z.string().trim().min(1).max(100),
-  country: z.string().trim().min(2).max(100).default("Nigeria"),
+  country: z.string().trim().min(2).max(100),
   postalCode: z.string().trim().max(20).optional(),
   isDefault: z.boolean().optional(),
 });
+
+export const addressSchema = addressFields.extend({
+  country: addressFields.shape.country.default("Nigeria"),
+});
 export type AddressInput = z.infer<typeof addressSchema>;
 
-export const updateAddressSchema = addressSchema.partial();
+// Built from the fields without the default: in Zod 4 a default still applies after
+// .partial(), so "Make default" would otherwise reset the country to Nigeria.
+export const updateAddressSchema = addressFields.partial();
 export type UpdateAddressInput = z.infer<typeof updateAddressSchema>;

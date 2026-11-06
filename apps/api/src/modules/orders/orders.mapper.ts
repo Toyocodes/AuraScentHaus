@@ -1,4 +1,4 @@
-import type { OrderDTO } from "@aurascenthaus/shared";
+import { formatSize, type OrderDTO } from "@aurascenthaus/shared";
 import type { Prisma } from "../../generated/prisma/client.js";
 
 export const orderInclude = {
@@ -46,6 +46,8 @@ export function toOrderDTO(o: OrderRow, opts: { includeCustomer?: boolean } = {}
       variantId: i.variantId,
       productName: i.productName,
       sizeMl: i.sizeMl,
+      sizeUnit: i.sizeUnit,
+      sizeLabel: formatSize(i.sizeMl, i.sizeUnit),
       unitPrice: i.unitPrice,
       quantity: i.quantity,
       lineTotal: i.lineTotal,

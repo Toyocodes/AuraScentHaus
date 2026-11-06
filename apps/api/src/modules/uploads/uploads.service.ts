@@ -41,6 +41,22 @@ export async function uploadProductImages(productId: string, files: Express.Mult
   return created.map(toImageDTO);
 }
 
+/** Upload a category's picture and return its public URL. */
+export async function uploadCategoryImage(categoryId: string, file: Express.Multer.File): Promise<string> {
+  const category = await prisma.category.findUnique({ where: { id: categoryId }, select: { id: true } });
+  if (!category) throw ApiError.notFound("Category");
+
+  const bucket = storage();
+  const path = `categories/${categoryId}/${randomUUID()}.${ALLOWED_IMAGE_TYPES[file.mimetype]}`;
+  const { error } = await bucket.upload(path, file.buffer, {
+    contentType: file.mimetype,
+    cacheControl: "31536000",
+    upsert: false,
+  });
+  if (error) throw new ApiError(502, `Image upload failed: ${error.message}`, "UPLOAD_FAILED");
+  return bucket.getPublicUrl(path).data.publicUrl;
+}
+
 export async function deleteProductImage(productId: string, imageId: string) {
   const image = await prisma.productImage.findFirst({ where: { id: imageId, productId } });
   if (!image) throw ApiError.notFound("Image");

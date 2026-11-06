@@ -1,4 +1,4 @@
-import type { Gender, OrderChannel, OrderStatus, PaymentMethod, PaymentStatus, Role } from "../constants/index.js";
+import type { Gender, OrderChannel, OrderStatus, PaymentMethod, PaymentStatus, Role, SizeUnit } from "../constants/index.js";
 import type { StatsGranularity, StatsRangeKey } from "../utils/date-range.js";
 
 /** Shapes returned by the API (JSON-serialised, so dates are ISO strings). */
@@ -40,7 +40,49 @@ export interface CategoryDTO {
   slug: string;
   description: string | null;
   imageUrl: string | null;
+  /** null = a main category. */
+  parentId: string | null;
+  position: number;
+  isActive: boolean;
+  /** Products here may have top, heart and base notes. Inherited from parent categories. */
+  hasFragrancePyramid: boolean;
+  /** Products here use men / women / unisex. Inherited from parent categories. */
+  usesGender: boolean;
+  defaultSizeUnit: SizeUnit;
 }
+
+export type CategoryRef = Pick<CategoryDTO, "id" | "name" | "slug">;
+
+export interface CategoryWithCountDTO extends CategoryDTO {
+  /** Products here and in all subcategories. */
+  productCount: number;
+  /** Products directly in this category: these must be moved before it can be deleted. */
+  directProductCount: number;
+}
+
+/** GET /categories?tree=true */
+export interface CategoryTreeDTO extends CategoryWithCountDTO {
+  children: CategoryTreeDTO[];
+}
+
+/** GET /categories/:slug */
+export interface CategoryDetailDTO extends CategoryDTO {
+  parent: CategoryRef | null;
+  /** Subcategories that have products to show. */
+  children: CategoryRef[];
+}
+
+export interface ScentFamilyDTO {
+  id: string;
+  name: string;
+  slug: string;
+  description: string | null;
+  position: number;
+  isActive: boolean;
+  productCount: number;
+}
+
+export type ScentFamilyRef = Pick<ScentFamilyDTO, "id" | "name" | "slug">;
 
 export interface ProductImageDTO {
   id: string;
@@ -51,7 +93,11 @@ export interface ProductImageDTO {
 
 export interface VariantDTO {
   id: string;
+  /** The amount, measured in `sizeUnit`. To show a size, use `sizeLabel`. */
   sizeMl: number;
+  sizeUnit: SizeUnit;
+  /** "50 ml", "200 g", "Set of 3" */
+  sizeLabel: string;
   sku: string;
   price: number; // kobo
   compareAtPrice: number | null; // kobo
@@ -70,11 +116,17 @@ export interface ProductListItemDTO {
   image: ProductImageDTO | null;
   /** Cheapest active variant price, in kobo. */
   priceFrom: number | null;
-  category: Pick<CategoryDTO, "id" | "name" | "slug"> | null;
+  category: CategoryRef | null;
+  scentFamilies: ScentFamilyRef[];
 }
 
-export interface ProductDetailDTO extends Omit<ProductListItemDTO, "image" | "priceFrom"> {
+export interface ProductDetailDTO extends Omit<ProductListItemDTO, "image" | "priceFrom" | "category"> {
+  category: (CategoryRef & Pick<CategoryDTO, "hasFragrancePyramid" | "usesGender" | "defaultSizeUnit">) | null;
   description: string;
+  /**
+   * Fragrance pyramid. Shoppers get empty arrays unless the category has the pyramid.
+   * Admins always get what is stored, so notes return if a product is moved back.
+   */
   topNotes: string[];
   heartNotes: string[];
   baseNotes: string[];
@@ -88,6 +140,8 @@ export interface CartItemDTO {
   unitPrice: number; // kobo, current price
   lineTotal: number; // kobo
   sizeMl: number;
+  sizeUnit: SizeUnit;
+  sizeLabel: string;
   stock: number;
   available: boolean; // false if product/variant was deactivated
   product: { id: string; name: string; slug: string; image: string | null };
@@ -106,6 +160,8 @@ export interface OrderItemDTO {
   variantId: string | null;
   productName: string;
   sizeMl: number;
+  sizeUnit: SizeUnit;
+  sizeLabel: string;
   unitPrice: number;
   quantity: number;
   lineTotal: number;
@@ -159,6 +215,8 @@ export interface SellableVariantDTO {
   productId: string;
   productName: string;
   sizeMl: number;
+  sizeUnit: SizeUnit;
+  sizeLabel: string;
   sku: string;
   price: number; // kobo
   stock: number;
@@ -202,6 +260,6 @@ export interface AdminStatsDTO {
   // Not affected by the range:
   customers: number;
   products: number;
-  lowStock: Array<{ variantId: string; productName: string; sizeMl: number; stock: number }>;
+  lowStock: Array<{ variantId: string; productName: string; sizeMl: number; sizeLabel: string; stock: number }>;
   recentOrders: OrderDTO[];
 }

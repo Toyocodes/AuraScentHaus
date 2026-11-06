@@ -1,4 +1,4 @@
-import { MAX_CART_ITEM_QUANTITY, type CartDTO, type MergeCartInput } from "@aurascenthaus/shared";
+import { formatSize, MAX_CART_ITEM_QUANTITY, type CartDTO, type MergeCartInput } from "@aurascenthaus/shared";
 import { prisma } from "../../config/prisma.js";
 import type { Prisma } from "../../generated/prisma/client.js";
 import { ApiError } from "../../utils/api-error.js";
@@ -44,6 +44,8 @@ function toCartDTO(cart: CartRow | null): CartDTO {
       unitPrice: variant.price,
       lineTotal: variant.price * item.quantity,
       sizeMl: variant.sizeMl,
+      sizeUnit: variant.sizeUnit,
+      sizeLabel: formatSize(variant.sizeMl, variant.sizeUnit),
       stock: variant.stock,
       available,
       product: {

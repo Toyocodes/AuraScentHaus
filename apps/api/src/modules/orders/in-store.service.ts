@@ -1,3 +1,4 @@
+import { formatSize } from "@aurascenthaus/shared";
 /**
  * In-store sales: orders an admin enters for customers who shop in person.
  *
@@ -87,7 +88,7 @@ async function takeStock(tx: Tx, input: AdminOrderLine[]) {
       });
       if (taken.count === 0) {
         throw ApiError.conflict(
-          `Only ${v.stock} left of ${v.product.name} ${v.sizeMl}ml`,
+          `Only ${v.stock} left of ${v.product.name} ${formatSize(v.sizeMl, v.sizeUnit)}`,
           "INSUFFICIENT_STOCK",
           { variantId: v.id, available: v.stock, requested: line.quantity },
         );
@@ -97,6 +98,7 @@ async function takeStock(tx: Tx, input: AdminOrderLine[]) {
         variantId: v.id,
         productName: v.product.name,
         sizeMl: v.sizeMl,
+        sizeUnit: v.sizeUnit,
         imageUrl: v.product.images[0]?.url ?? null,
         unitPrice: v.price,
         quantity: line.quantity,
