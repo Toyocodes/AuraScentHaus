@@ -62,8 +62,12 @@ export function AddressBook({ addresses, isSaving, onCreate, onMakeDefault, onDe
           isPending={isSaving}
           onCancel={() => setAdding(false)}
           onSubmit={async (input) => {
-            await onCreate?.(input);
-            setAdding(false);
+            try {
+              await onCreate?.(input);
+              setAdding(false);
+            } catch {
+              // Keep the form open with what was typed; the caller shows the error.
+            }
           }}
         />
       ) : (

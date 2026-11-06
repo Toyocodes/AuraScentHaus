@@ -1,8 +1,6 @@
 import { Suspense } from "react";
-import { notFound } from "next/navigation";
 import { BackLink } from "@/components/common";
-import { OrderDetail, OrderDetailSkeleton } from "@/components/order";
-import { findMockOrder } from "@/mocks";
+import { MyOrderSection, OrderDetailSkeleton } from "@/components/order";
 
 export default function AccountOrderPage({ params }: PageProps<"/account/orders/[id]">) {
   return (
@@ -15,9 +13,7 @@ export default function AccountOrderPage({ params }: PageProps<"/account/orders/
   );
 }
 
-/** Sample data for now. Later: `useMyOrder(id)`. */
 async function Order({ params }: { params: Promise<{ id: string }> }) {
-  const order = findMockOrder((await params).id);
-  if (!order) notFound();
-  return <OrderDetail order={order} />;
+  const { id } = await params;
+  return <MyOrderSection orderId={id} />;
 }
