@@ -29,6 +29,13 @@ enum Gender {
   UNISEX
 }
 
+/// How a product size is measured: 50 ml, 200 g, or a set of 3 pieces.
+enum SizeUnit {
+  ML
+  G
+  PIECE
+}
+
 enum OrderStatus {
   PENDING
   PAID
@@ -115,17 +122,50 @@ model Session {
 // ─── Catalog ─────────────────────────────────────────────────
 
 model Category {
+  id                  String   @id @default(cuid())
+  name                String
+  slug                String   @unique
+  description         String?
+  imageUrl            String?
+  /// null = a main category (e.g. Personal Fragrance). Otherwise a child (e.g. Perfumes).
+  parentId            String?
+  position            Int      @default(0)
+  isActive            Boolean  @default(true)
+  /// Products here (and in any subcategory) may have top, heart and base notes.
+  hasFragrancePyramid Boolean  @default(false)
+  /// Show the "For" (men, women, unisex) field and filter for products here.
+  usesGender          Boolean  @default(false)
+  /// The unit the admin form starts with for new sizes in this category.
+  defaultSizeUnit     SizeUnit @default(ML)
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  /// Restrict: a category with subcategories can't be deleted until they are moved.
+  parent   Category?  @relation("CategoryTree", fields: [parentId], references: [id], onDelete: Restrict)
+  children Category[] @relation("CategoryTree")
+  products Product[]
+
+  @@index([parentId, position])
+  @@index([isActive])
+  @@map("categories")
+}
+
+/// What a product smells like (Oud, Floral…). Separate from Category, which is what it is.
+model ScentFamily {
   id          String   @id @default(cuid())
   name        String
   slug        String   @unique
   description String?
   imageUrl    String?
+  position    Int      @default(0)
+  isActive    Boolean  @default(true)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
   products Product[]
 
-  @@map("categories")
+  @@index([isActive, position])
+  @@map("scent_families")
 }
 
 model Product {
@@ -147,20 +187,26 @@ model Product {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  category Category?        @relation(fields: [categoryId], references: [id], onDelete: SetNull)
-  variants ProductVariant[]
-  images   ProductImage[]
+  /// Restrict: a category with products can't be deleted until they are moved.
+  category      Category?        @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  scentFamilies ScentFamily[]
+  variants      ProductVariant[]
+  images        ProductImage[]
 
   @@index([isActive, isFeatured])
   @@index([categoryId])
+  @@index([priceFrom])
   @@map("products")
 }
 
-/// A purchasable size of a perfume (e.g. 50ml / 100ml), each with its own price and stock.
+/// A purchasable size of a product (50 ml, 200 g, a set of 3), each with its own price and stock.
 model ProductVariant {
   id             String   @id @default(cuid())
   productId      String
+  /// The amount, measured in `sizeUnit`. The name is kept for compatibility:
+  /// a 200 g candle has sizeMl 200 and sizeUnit G. Show sizes with sizeLabel, never this alone.
   sizeMl         Int
+  sizeUnit       SizeUnit @default(ML)
   sku            String   @unique
   price          Int // kobo
   compareAtPrice Int? // kobo, shows a "was" price
@@ -173,7 +219,7 @@ model ProductVariant {
   cartItems  CartItem[]
   orderItems OrderItem[]
 
-  @@unique([productId, sizeMl])
+  @@unique([productId, sizeMl, sizeUnit])
   @@map("product_variants")
 }
 
@@ -296,11 +342,13 @@ model Order {
 
 /// Price/name snapshot at purchase time.
 model OrderItem {
-  id          String  @id @default(cuid())
+  id          String   @id @default(cuid())
   orderId     String
   variantId   String?
   productName String
+  /// Copied from the variant when the order was placed, in `sizeUnit`.
   sizeMl      Int
+  sizeUnit    SizeUnit @default(ML)
   imageUrl    String?
   unitPrice   Int // kobo
   quantity    Int
