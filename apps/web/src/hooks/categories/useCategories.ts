@@ -6,7 +6,7 @@ import { routes } from "../helper/routes";
 import { useAxios } from "../useAxios";
 import type { CategoryListResponse } from "./types";
 
-/** All categories, for the navbar and filters. They rarely change, so they stay fresh for 10 minutes. */
+/** A flat list of categories with products on sale. They rarely change, so they stay fresh for 10 minutes. */
 export function useCategories() {
   const axios = useAxios();
 

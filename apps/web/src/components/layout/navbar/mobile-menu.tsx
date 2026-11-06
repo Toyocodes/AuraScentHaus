@@ -2,12 +2,31 @@
 
 import Link from "next/link";
 import { Menu } from "lucide-react";
+import type { CategoryTreeDTO, ScentFamilyDTO } from "@aurascenthaus/shared";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetClose, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
-import { NAV_LINKS } from "./nav-links";
 
-/** Slide-in menu for small screens. */
-export function MobileMenu() {
+const ROW = "block border-b py-4 font-heading text-2xl";
+const CHILD = "block py-3 text-base text-muted-foreground";
+
+function CloseLink({ href, className, children }: { href: string; className?: string; children: React.ReactNode }) {
+  return (
+    <SheetClose asChild>
+      <Link href={href} className={className}>
+        {children}
+      </Link>
+    </SheetClose>
+  );
+}
+
+interface MobileMenuProps {
+  categories: CategoryTreeDTO[];
+  scentFamilies: ScentFamilyDTO[];
+}
+
+/** Slide-in menu for small screens, with each main category opening to show its subcategories. */
+export function MobileMenu({ categories, scentFamilies }: MobileMenuProps) {
   return (
     <Sheet>
       <SheetTrigger asChild>
@@ -15,23 +34,53 @@ export function MobileMenu() {
           <Menu />
         </Button>
       </SheetTrigger>
-      <SheetContent side="left" className="bg-background">
+      <SheetContent side="left" className="overflow-y-auto bg-background">
         <SheetHeader>
           <SheetTitle className="font-heading text-xl tracking-[0.25em] uppercase">AuraScentHaus</SheetTitle>
         </SheetHeader>
-        <nav className="flex flex-col px-4">
-          {NAV_LINKS.map((l) => (
-            <SheetClose asChild key={l.href}>
-              <Link href={l.href} className="border-b py-4 font-heading text-2xl">
-                {l.label}
-              </Link>
-            </SheetClose>
-          ))}
-          <SheetClose asChild>
-            <Link href="/account" className="py-4 text-sm text-muted-foreground">
-              My account
-            </Link>
-          </SheetClose>
+        <nav className="flex flex-col px-4 pb-8" aria-label="Shop">
+          <CloseLink href="/shop" className={ROW}>
+            Shop all
+          </CloseLink>
+
+          <Accordion type="single" collapsible>
+            {categories.map((category) => (
+              <AccordionItem key={category.id} value={category.id}>
+                <AccordionTrigger className="py-4 font-heading text-2xl font-normal hover:no-underline">
+                  {category.name}
+                </AccordionTrigger>
+                <AccordionContent>
+                  <CloseLink href={`/shop/${category.slug}`} className={`${CHILD} text-foreground`}>
+                    All {category.name}
+                  </CloseLink>
+                  {category.children.map((child) => (
+                    <CloseLink key={child.id} href={`/shop/${child.slug}`} className={CHILD}>
+                      {child.name}
+                    </CloseLink>
+                  ))}
+                </AccordionContent>
+              </AccordionItem>
+            ))}
+            {scentFamilies.length > 0 && (
+              <AccordionItem value="scents">
+                <AccordionTrigger className="py-4 font-heading text-2xl font-normal hover:no-underline">By scent</AccordionTrigger>
+                <AccordionContent>
+                  {scentFamilies.map((family) => (
+                    <CloseLink key={family.id} href={`/shop?scent=${family.slug}`} className={CHILD}>
+                      {family.name}
+                    </CloseLink>
+                  ))}
+                </AccordionContent>
+              </AccordionItem>
+            )}
+          </Accordion>
+
+          <CloseLink href="/shop?sort=newest" className={ROW}>
+            New Arrivals
+          </CloseLink>
+          <CloseLink href="/account" className="py-4 text-sm text-muted-foreground">
+            My account
+          </CloseLink>
         </nav>
       </SheetContent>
     </Sheet>

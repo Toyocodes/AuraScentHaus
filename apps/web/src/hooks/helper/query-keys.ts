@@ -15,7 +15,11 @@ export const queryKeys = {
   categories: {
     all: ["categories"] as const,
     list: () => [...queryKeys.categories.all, "list"] as const,
+    tree: () => [...queryKeys.categories.all, "tree"] as const,
     detail: (slug: string) => [...queryKeys.categories.all, "detail", slug] as const,
+  },
+  scentFamilies: {
+    all: ["scent-families"] as const,
   },
   cart: {
     all: ["cart"] as const,
@@ -47,6 +51,9 @@ export const queryKeys = {
     },
     categories: {
       all: ["admin", "categories"] as const,
+    },
+    scentFamilies: {
+      all: ["admin", "scent-families"] as const,
     },
     orders: {
       all: ["admin", "orders"] as const,

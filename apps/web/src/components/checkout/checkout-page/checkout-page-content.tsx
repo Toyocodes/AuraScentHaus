@@ -34,10 +34,10 @@ export function CheckoutPageContent() {
     return (
       <EmptyState
         title="Your bag is empty"
-        description="Add a perfume to your bag to check out."
+        description="Add something to your bag to check out."
         action={
           <Button asChild>
-            <Link href="/products">Discover perfumes</Link>
+            <Link href="/shop">Explore the collection</Link>
           </Button>
         }
       />

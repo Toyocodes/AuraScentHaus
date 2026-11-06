@@ -1,6 +1,6 @@
 const PILLARS = [
   { title: "Rare ingredients", body: "Agarwood, Turkish rose and sandalwood, chosen for depth and lasting power." },
-  { title: "Made to linger", body: "Eau de parfum concentration, so a few sprays carry you through the day." },
+  { title: "Made to linger", body: "Scent for you and your home, composed to stay with you through the day." },
   { title: "Effortless shopping", body: "Sign in with just your email. Your bag follows you on every device." },
 ] as const;
 

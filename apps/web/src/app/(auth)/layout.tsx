@@ -6,7 +6,7 @@ export default function AuthLayout({ children }: LayoutProps<"/">) {
   return (
     <div className="grid min-h-svh lg:grid-cols-2">
       <div className="relative hidden overflow-hidden lg:block">
-        <ProductVisual name="Royal Oud" compact />
+        <ProductVisual name="Royal Oud" compact variant="bottle" />
         <div className="absolute inset-0 bg-linear-to-t from-espresso/80 via-espresso/20 to-transparent" />
         <div className="absolute inset-x-0 bottom-0 space-y-3 p-12 text-espresso-foreground">
           <p className="eyebrow text-gold">AuraScentHaus</p>

@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { EmptyState, QueryError } from "@/components/common";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAdminCategories } from "@/hooks/admin/categories";
+import { useAdminScentFamilies } from "@/hooks/admin/scent-families";
 import {
   useAddVariant,
   useAdminProduct,
@@ -26,6 +27,7 @@ export function ProductEditorSection({ productId }: { productId: string }) {
   const { can } = usePermission();
   const product = useAdminProduct(productId);
   const categories = useAdminCategories();
+  const scentFamilies = useAdminScentFamilies();
 
   const updateProduct = useUpdateProduct();
   const deleteProduct = useDeleteProduct();
@@ -35,7 +37,7 @@ export function ProductEditorSection({ productId }: { productId: string }) {
   const uploadImages = useUploadProductImages();
   const deleteImage = useDeleteProductImage();
 
-  if (product.isPending || categories.isPending) return <Skeleton className="h-96" />;
+  if (product.isPending || categories.isPending || scentFamilies.isPending) return <Skeleton className="h-96" />;
   if (product.isError) {
     if (getErrorStatus(product.error) === 404) return <EmptyState title="We can't find this product" />;
     return <QueryError error={product.error} onRetry={() => void product.refetch()} />;
@@ -45,6 +47,7 @@ export function ProductEditorSection({ productId }: { productId: string }) {
     <ProductEditor
       product={product.data}
       categories={categories.data ?? []}
+      scentFamilies={scentFamilies.data ?? []}
       canDelete={can("products:delete")}
       isSaving={updateProduct.isPending}
       onSave={async (input) => {

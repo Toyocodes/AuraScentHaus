@@ -22,7 +22,7 @@ export function OrderFormSummary({ variants, children }: OrderFormSummaryProps) 
   const rows = (lines ?? []).flatMap((l) => {
     const v = variants.find((x) => x.variantId === l.variantId);
     const quantity = Number(l.quantity) || 0;
-    return v && quantity > 0 ? [{ key: v.variantId, label: `${v.productName} · ${v.sizeMl} ml × ${quantity}`, total: v.price * quantity }] : [];
+    return v && quantity > 0 ? [{ key: v.variantId, label: `${v.productName} · ${v.sizeLabel} × ${quantity}`, total: v.price * quantity }] : [];
   });
   const total = rows.reduce((sum, r) => sum + r.total, 0);
 

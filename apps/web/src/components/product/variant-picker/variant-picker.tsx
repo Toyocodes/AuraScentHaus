@@ -30,7 +30,7 @@ export function VariantPicker({ variants, value, onChange }: VariantPickerProps)
               v.stock <= 0 && "text-muted-foreground line-through decoration-1",
             )}
           >
-            {v.sizeMl} ml
+            {v.sizeLabel}
           </button>
         ))}
       </div>

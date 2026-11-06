@@ -8,6 +8,7 @@ import { EmptyState } from "@/components/common";
 import { Button } from "@/components/ui/button";
 import { getErrorMessage } from "@/hooks/helper/errors";
 import { useMe } from "@/hooks/auth";
+import { useHasMounted } from "@/hooks/helper/useHasMounted";
 import { loginUrlFor } from "@/lib/redirect";
 
 interface RequireAuthProps {
@@ -26,12 +27,15 @@ interface RequireAuthProps {
  */
 export function RequireAuth({ children, permission, loading = <AuthChecking /> }: RequireAuthProps) {
   const router = useRouter();
+  const hasMounted = useHasMounted();
   const { data: user, isPending, isError, error, refetch } = useMe();
   const signedOut = !isPending && !isError && user === null;
 
   useEffect(() => {
     if (signedOut) router.replace(loginUrlFor(window.location.pathname + window.location.search));
   }, [signedOut, router]);
+
+  if (!hasMounted) return loading;
 
   if (isError) {
     return (

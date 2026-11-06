@@ -2,7 +2,7 @@
 
 import type { ReactNode } from "react";
 import Link from "next/link";
-import type { CategoryDTO, ProductDetailDTO, ProductInput } from "@aurascenthaus/shared";
+import type { CategoryDTO, ProductDetailDTO, ProductInput, ScentFamilyDTO } from "@aurascenthaus/shared";
 import { ConfirmDialog, PageHeader } from "@/components/common";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -13,6 +13,7 @@ import { VariantManager, type VariantManagerProps } from "../variant-manager/var
 interface ProductEditorProps {
   product: ProductDetailDTO;
   categories?: CategoryDTO[];
+  scentFamilies?: ScentFamilyDTO[];
   /** From `usePermission().can("products:delete")`. */
   canDelete?: boolean;
   isSaving?: boolean;
@@ -26,6 +27,7 @@ interface ProductEditorProps {
 export function ProductEditor({
   product,
   categories,
+  scentFamilies,
   canDelete = true,
   isSaving,
   onSave,
@@ -63,11 +65,11 @@ export function ProductEditor({
       </EditorSection>
       <Separator />
       <EditorSection title="Sizes, prices & stock">
-        <VariantManager variants={product.variants} {...variants} />
+        <VariantManager variants={product.variants} defaultUnit={product.category?.defaultSizeUnit} {...variants} />
       </EditorSection>
       <Separator />
       <EditorSection title="Details">
-        <ProductForm key={product.id} product={product} categories={categories} isPending={isSaving} onSubmit={onSave} />
+        <ProductForm key={product.id} product={product} categories={categories} scentFamilies={scentFamilies} isPending={isSaving} onSubmit={onSave} />
       </EditorSection>
     </div>
   );

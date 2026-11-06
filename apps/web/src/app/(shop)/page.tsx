@@ -1,4 +1,4 @@
-import { BrandStory, CollectionTilesSection, FeaturedProductsSection, Hero } from "@/components/home";
+import { BrandStory, CollectionTilesSection, FeaturedProductsSection, Hero, ScentFamiliesSection } from "@/components/home";
 
 export default function HomePage() {
   return (
@@ -6,6 +6,7 @@ export default function HomePage() {
       <Hero />
       <FeaturedProductsSection />
       <CollectionTilesSection />
+      <ScentFamiliesSection />
       <BrandStory />
     </>
   );

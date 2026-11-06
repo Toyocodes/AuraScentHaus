@@ -12,7 +12,7 @@ interface ProductGridProps {
 
 export function ProductGrid({
   products,
-  emptyTitle = "No perfumes found",
+  emptyTitle = "Nothing found",
   emptyDescription = "Try another search or filter.",
 }: ProductGridProps) {
   if (products.length === 0) return <EmptyState title={emptyTitle} description={emptyDescription} />;

@@ -13,8 +13,8 @@ const serif = Cormorant_Garamond({
 });
 
 export const metadata: Metadata = {
-  title: { default: "AuraScentHaus | Luxury Perfumes", template: "%s · AuraScentHaus" },
-  description: "Discover signature fragrances: floral, woody, oud and fresh scents delivered to your door.",
+  title: { default: "AuraScentHaus | The Art of Scent", template: "%s · AuraScentHaus" },
+  description: "Luxury perfumes, home fragrance, body care and gifts, delivered across Nigeria.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

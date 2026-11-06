@@ -9,7 +9,7 @@ import { formatNaira } from "@/lib/format";
 
 export function ProductsTable({ products }: { products: ProductListItemDTO[] }) {
   if (products.length === 0) {
-    return <EmptyState title="No products yet" description="Create your first perfume to start selling." />;
+    return <EmptyState title="No products yet" description="Create your first product to start selling." />;
   }
 
   return (

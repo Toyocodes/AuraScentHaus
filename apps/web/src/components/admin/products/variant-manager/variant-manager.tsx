@@ -1,12 +1,14 @@
 "use client";
 
-import type { UpdateVariantInput, VariantDTO, VariantInput } from "@aurascenthaus/shared";
+import type { UpdateVariantInput, VariantDTO, VariantInput, SizeUnit } from "@aurascenthaus/shared";
 import { Table, TableBody, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { AddVariantForm } from "./add-variant-form";
 import { VariantRow } from "./variant-row";
 
 export interface VariantManagerProps {
   variants: VariantDTO[];
+  /** The unit a new size starts in. */
+  defaultUnit?: SizeUnit;
   isPending?: boolean;
   onAdd?: (input: VariantInput) => void | Promise<void>;
   onUpdate?: (variantId: string, input: UpdateVariantInput) => void | Promise<void>;
@@ -14,7 +16,7 @@ export interface VariantManagerProps {
 }
 
 /** Sizes, prices and stock of an existing product. Prices are typed in naira. */
-export function VariantManager({ variants, isPending, onAdd, onUpdate, onDelete }: VariantManagerProps) {
+export function VariantManager({ variants, defaultUnit, isPending, onAdd, onUpdate, onDelete }: VariantManagerProps) {
   return (
     <div className="space-y-4">
       <Table>
@@ -33,7 +35,7 @@ export function VariantManager({ variants, isPending, onAdd, onUpdate, onDelete 
           ))}
         </TableBody>
       </Table>
-      <AddVariantForm isPending={isPending} onSubmit={onAdd} />
+      <AddVariantForm defaultUnit={defaultUnit} isPending={isPending} onSubmit={onAdd} />
     </div>
   );
 }

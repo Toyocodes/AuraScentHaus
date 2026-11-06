@@ -18,7 +18,7 @@ export function OrderItems({ items }: { items: OrderItemDTO[] }) {
           <div className="flex-1">
             <p className="font-heading text-lg">{item.productName}</p>
             <p className="text-sm text-muted-foreground">
-              {item.sizeMl}ml × {item.quantity} @ {formatNaira(item.unitPrice)}
+              {item.sizeLabel} × {item.quantity} @ {formatNaira(item.unitPrice)}
             </p>
           </div>
           <p>{formatNaira(item.lineTotal)}</p>

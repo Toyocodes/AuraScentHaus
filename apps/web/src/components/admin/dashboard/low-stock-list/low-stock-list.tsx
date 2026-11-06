@@ -11,7 +11,7 @@ export function LowStockList({ items }: { items: AdminStatsDTO["lowStock"] }) {
           {items.map((v) => (
             <li key={v.variantId} className="flex justify-between gap-4 py-3">
               <span>
-                {v.productName} · {v.sizeMl} ml
+                {v.productName} · {v.sizeLabel}
               </span>
               <span className={v.stock <= 0 ? "font-medium text-destructive" : "text-gold"}>
                 {v.stock <= 0 ? "Sold out" : `${v.stock} left`}

@@ -19,13 +19,13 @@ export function ProductDetail({ product, isAdding, onAddToCart }: ProductDetailP
       <div className="space-y-8 md:sticky md:top-32 md:self-start">
         <div className="space-y-3">
           <nav className="eyebrow flex gap-2" aria-label="Breadcrumb">
-            <Link href="/products" className="hover:text-foreground">
-              Perfumes
+            <Link href="/shop" className="hover:text-foreground">
+              Shop
             </Link>
             {product.category && (
               <>
                 <span aria-hidden>/</span>
-                <Link href={`/collections/${product.category.slug}`} className="hover:text-foreground">
+                <Link href={`/shop/${product.category.slug}`} className="hover:text-foreground">
                   {product.category.name}
                 </Link>
               </>
@@ -33,7 +33,9 @@ export function ProductDetail({ product, isAdding, onAddToCart }: ProductDetailP
           </nav>
           <h1 className="text-5xl leading-none md:text-6xl">{product.name}</h1>
           <p className="text-sm tracking-wide text-muted-foreground">
-            {product.brand ?? "AuraScentHaus"} · Eau de parfum · {humanize(product.gender)}
+            {[product.brand ?? "AuraScentHaus", product.category?.usesGender ? humanize(product.gender) : null]
+              .filter(Boolean)
+              .join(" · ")}
           </p>
         </div>
 
@@ -41,7 +43,27 @@ export function ProductDetail({ product, isAdding, onAddToCart }: ProductDetailP
 
         <AddToCart product={product} isPending={isAdding} onAdd={onAddToCart} />
 
-        <ScentNotes top={product.topNotes} heart={product.heartNotes} base={product.baseNotes} />
+        {product.scentFamilies.length > 0 && (
+          <div className="space-y-3">
+            <p className="eyebrow text-foreground">Scent family</p>
+            <ul className="flex flex-wrap gap-2">
+              {product.scentFamilies.map((family) => (
+                <li key={family.id}>
+                  <Link
+                    href={`/shop?scent=${family.slug}`}
+                    className="block rounded-full border px-3.5 py-1 text-sm transition-colors hover:border-foreground/50"
+                  >
+                    {family.name}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        {product.category?.hasFragrancePyramid && (
+          <ScentNotes top={product.topNotes} heart={product.heartNotes} base={product.baseNotes} />
+        )}
       </div>
     </div>
   );

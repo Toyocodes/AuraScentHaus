@@ -6,7 +6,7 @@ import { routes } from "../helper/routes";
 import { useAxios } from "../useAxios";
 import type { CategoryDetailResponse } from "./types";
 
-/** One category by slug, for /collections/[slug]. */
+/** One category by slug, for /shop/[slug]. */
 export function useCategory(slug: string | undefined) {
   const axios = useAxios();
 

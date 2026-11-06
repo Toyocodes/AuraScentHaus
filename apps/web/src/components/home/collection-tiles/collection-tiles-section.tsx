@@ -1,10 +1,10 @@
 "use client";
 
-import { useCategories } from "@/hooks/categories";
+import { useCategoryTree } from "@/hooks/categories";
 import { CollectionTiles } from "./collection-tiles";
 
-/** Home page collections, connected to GET /categories. Hidden until they load (or if there are none). */
+/** Home page collections, from the main categories with products on sale. Hidden until they load. */
 export function CollectionTilesSection() {
-  const { data: categories = [] } = useCategories();
+  const { data: categories = [] } = useCategoryTree();
   return <CollectionTiles categories={categories} />;
 }

@@ -2,7 +2,6 @@ import Image from "next/image";
 import Link from "next/link";
 import type { ProductListItemDTO } from "@aurascenthaus/shared";
 import { Price } from "@/components/common";
-import { humanize } from "@/lib/format";
 import { ProductVisual } from "../product-visual/product-visual";
 
 export function ProductCard({ product }: { product: ProductListItemDTO }) {
@@ -32,9 +31,7 @@ export function ProductCard({ product }: { product: ProductListItemDTO }) {
         </span>
       </div>
       <div className="space-y-1.5 text-center">
-        <p className="eyebrow">
-          {product.category?.name ?? product.brand} · {humanize(product.gender)}
-        </p>
+        <p className="eyebrow">{product.category?.name ?? product.brand}</p>
         <h3 className="font-heading text-xl leading-tight">{product.name}</h3>
         {product.priceFrom !== null && (
           <Price amount={product.priceFrom} prefix="From" className="justify-center text-sm" />

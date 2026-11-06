@@ -15,6 +15,16 @@ const nextConfig: NextConfig = {
     return [{ source: "/api/:path*", destination: `${API_URL}/api/:path*` }];
   },
 
+  /** Links to the old pages keep working. */
+  async redirects() {
+    return [
+      { source: "/products", destination: "/shop", permanent: true },
+      // These used to be categories and are now scent families.
+      { source: "/collections/:slug(floral|woody|oud|fresh)", destination: "/shop?scent=:slug", permanent: true },
+      { source: "/collections/:slug", destination: "/shop/:slug", permanent: true },
+    ];
+  },
+
   images: {
     remotePatterns: [
       // Supabase Storage public bucket (product images)

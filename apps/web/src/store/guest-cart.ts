@@ -2,7 +2,7 @@
 
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
-import { MAX_CART_ITEM_QUANTITY } from "@aurascenthaus/shared";
+import { MAX_CART_ITEM_QUANTITY, type SizeUnit } from "@aurascenthaus/shared";
 
 /**
  * Cart for visitors who aren't signed in, kept in localStorage.
@@ -18,6 +18,8 @@ export interface GuestCartItem {
   slug: string;
   image: string | null;
   sizeMl: number;
+  /** Missing on items saved before units existed: those are ml. */
+  sizeUnit?: SizeUnit;
   unitPrice: number; // kobo
   stock: number;
 }

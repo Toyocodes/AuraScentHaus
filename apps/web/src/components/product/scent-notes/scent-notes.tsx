@@ -16,7 +16,9 @@ export function ScentNotes(notes: ScentNotesProps) {
   if (rows.length === 0) return null;
 
   return (
-    <dl className="divide-y border-y">
+    <section className="space-y-3">
+      <h2 className="font-heading text-2xl">Fragrance pyramid</h2>
+      <dl className="divide-y border-y">
       {rows.map((r) => (
         <div key={r.key} className="grid gap-1 py-4 sm:grid-cols-[9rem_1fr] sm:gap-4">
           <dt>
@@ -26,6 +28,7 @@ export function ScentNotes(notes: ScentNotesProps) {
           <dd className="font-heading text-lg">{notes[r.key].join(" · ")}</dd>
         </div>
       ))}
-    </dl>
+      </dl>
+    </section>
   );
 }

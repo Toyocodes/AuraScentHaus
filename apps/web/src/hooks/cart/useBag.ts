@@ -1,8 +1,10 @@
 "use client";
 
 import { useMemo } from "react";
+import { formatSize } from "@aurascenthaus/shared";
 import { useGuestCart, type GuestCartItem } from "@/store/guest-cart";
 import { useMe } from "../auth/useMe";
+import { useHasMounted } from "../helper/useHasMounted";
 import type { BagAddInput, CartDTO, CartItemDTO } from "./types";
 import { useAddToCart } from "./useAddToCart";
 import { useCart } from "./useCart";
@@ -19,6 +21,7 @@ const EMPTY_CART: CartDTO = { items: [], itemCount: 0, subtotal: 0, updatedAt: n
  * Components call `add`, `setQuantity` and `remove` without caring which one it is.
  */
 export function useBag() {
+  const hasMounted = useHasMounted();
   const { data: user, isPending: isUserPending } = useMe();
   const isSignedIn = Boolean(user);
 
@@ -30,7 +33,8 @@ export function useBag() {
   const guestItems = useGuestCart((s) => s.items);
   const guest = useGuestCart.getState(); // actions only; they never change
 
-  const guestCart = useMemo(() => toCartDTO(guestItems), [guestItems]);
+  // The guest bag lives in this browser, so the server can't know it: start empty, like its HTML.
+  const guestCart = useMemo(() => toCartDTO(hasMounted ? guestItems : []), [guestItems, hasMounted]);
 
   const cart = isSignedIn ? (serverCart.data ?? EMPTY_CART) : guestCart;
 
@@ -38,7 +42,7 @@ export function useBag() {
     cart,
     isSignedIn,
     /** Still finding out who is browsing, or loading their server cart. */
-    isPending: isUserPending || (isSignedIn && serverCart.isPending),
+    isPending: !hasMounted || isUserPending || (isSignedIn && serverCart.isPending),
     isError: isSignedIn && serverCart.isError,
     error: serverCart.error,
     refetch: serverCart.refetch,
@@ -58,6 +62,7 @@ export function useBag() {
         slug: product.slug,
         image: product.images[0]?.url ?? null,
         sizeMl: variant.sizeMl,
+        sizeUnit: variant.sizeUnit,
         unitPrice: variant.price,
         stock: variant.stock,
       });
@@ -84,6 +89,8 @@ function toCartDTO(items: GuestCartItem[]): CartDTO {
     unitPrice: i.unitPrice,
     lineTotal: i.unitPrice * i.quantity,
     sizeMl: i.sizeMl,
+    sizeUnit: i.sizeUnit ?? "ML",
+    sizeLabel: formatSize(i.sizeMl, i.sizeUnit),
     stock: i.stock,
     available: true,
     product: { id: i.productId, name: i.name, slug: i.slug, image: i.image },

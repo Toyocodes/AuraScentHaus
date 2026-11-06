@@ -30,10 +30,10 @@ export function CartView({
     return (
       <EmptyState
         title="Your bag is empty"
-        description="Perfumes you add will appear here, on every device you sign in on."
+        description="Anything you add will appear here, on every device you sign in on."
         action={
           <Button asChild>
-            <Link href="/products">Discover perfumes</Link>
+            <Link href="/shop">Explore the collection</Link>
           </Button>
         }
       />

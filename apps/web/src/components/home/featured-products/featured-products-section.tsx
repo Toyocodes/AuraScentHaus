@@ -4,8 +4,8 @@ import { useProducts } from "@/hooks/products";
 import { FeaturedProducts } from "./featured-products";
 
 /**
- * Home page favourites, connected: perfumes marked "Featured" in the admin.
- * If none are featured yet, the newest perfumes fill the section instead.
+ * Home page favourites, connected: products marked "Featured" in the admin.
+ * If none are featured yet, the newest products fill the section instead.
  */
 export function FeaturedProductsSection() {
   const featured = useProducts({ featured: true, limit: 8 });

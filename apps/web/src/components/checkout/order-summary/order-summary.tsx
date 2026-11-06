@@ -22,7 +22,7 @@ export function OrderSummary({ items, subtotal, children }: OrderSummaryProps) {
           {items.map((i) => (
             <li key={i.variantId} className="flex justify-between gap-4">
               <span>
-                {i.product.name} · {i.sizeMl}ml × {i.quantity}
+                {i.product.name} · {i.sizeLabel} × {i.quantity}
               </span>
               <span>{formatNaira(i.lineTotal)}</span>
             </li>

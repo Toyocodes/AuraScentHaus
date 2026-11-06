@@ -1,16 +1,7 @@
 import Link from "next/link";
+import { FooterShopLinks } from "./footer-shop-links";
 
 const COLUMNS = [
-  {
-    title: "Shop",
-    links: [
-      { href: "/products", label: "All perfumes" },
-      { href: "/collections/floral", label: "Floral" },
-      { href: "/collections/woody", label: "Woody" },
-      { href: "/collections/oud", label: "Oud" },
-      { href: "/collections/fresh", label: "Fresh" },
-    ],
-  },
   {
     title: "Account",
     links: [
@@ -31,10 +22,14 @@ export function Footer() {
             Aura<span className="text-gold">Scent</span>Haus
           </p>
           <p className="text-sm leading-relaxed text-espresso-foreground/70">
-            Signature perfumes composed with rare oud, rose, cedar and amber. Sign in with just your email: your
-            bag follows you on every device.
+            The art of scent. Fragrance for you and your home, composed with rare oud, rose, cedar and amber. Sign in
+            with just your email: your bag follows you on every device.
           </p>
         </div>
+        <nav className="space-y-4" aria-label="Shop">
+          <p className="text-[0.6875rem] tracking-[0.3em] text-gold uppercase">Shop</p>
+          <FooterShopLinks />
+        </nav>
         {COLUMNS.map((col) => (
           <nav key={col.title} className="space-y-4">
             <p className="text-[0.6875rem] tracking-[0.3em] text-gold uppercase">{col.title}</p>

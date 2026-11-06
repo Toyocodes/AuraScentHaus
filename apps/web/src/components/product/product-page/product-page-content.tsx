@@ -26,17 +26,17 @@ export function ProductPageContent({ slug }: { slug: string }) {
     if (getErrorStatus(error) === 404) {
       return (
         <EmptyState
-          title="We can't find this perfume"
+          title="We can't find this product"
           description="It may have been renamed or is no longer available."
           action={
             <Button asChild>
-              <Link href="/products">Browse all perfumes</Link>
+              <Link href="/shop">Browse the collection</Link>
             </Button>
           }
         />
       );
     }
-    return <QueryError error={error} title="This perfume didn't load" onRetry={() => void refetch()} />;
+    return <QueryError error={error} title="This product didn't load" onRetry={() => void refetch()} />;
   }
 
   return (
@@ -47,7 +47,7 @@ export function ProductPageContent({ slug }: { slug: string }) {
         onAddToCart={async (variant: VariantDTO) => {
           try {
             await bag.add({ product, variant });
-            toast.success(`${product.name}, ${variant.sizeMl} ml added to your bag`, {
+            toast.success(`${product.name}, ${variant.sizeLabel} added to your bag`, {
               action: { label: "View bag", onClick: () => router.push("/cart") },
             });
           } catch (err) {
@@ -60,7 +60,7 @@ export function ProductPageContent({ slug }: { slug: string }) {
   );
 }
 
-/** Up to 4 others from the same collection, or the newest perfumes if it has none. */
+/** Up to 4 others from the same category, or the newest products if it has none. */
 function RelatedProducts({ slug, category }: { slug: string; category?: string }) {
   const sameCategory = useProducts({ category, limit: 5 });
   const others = (sameCategory.data?.data ?? []).filter((p) => p.slug !== slug);

@@ -14,7 +14,7 @@ export function OrderList({ orders }: { orders: OrderDTO[] }) {
         description="When you place an order, it will show up here."
         action={
           <Button asChild>
-            <Link href="/products">Start shopping</Link>
+            <Link href="/shop">Start shopping</Link>
           </Button>
         }
       />

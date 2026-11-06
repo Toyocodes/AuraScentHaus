@@ -4,44 +4,33 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { FormInput, FormSelect } from "@/components/form";
 import { Form } from "@/components/ui/form";
-import { GENDER_OPTIONS, SORT_OPTIONS } from "./filter-options";
-import {
-  DEFAULT_FILTERS,
-  productFilterSchema,
-  toFilterParams,
-  type ProductFilterParams,
-  type ProductFilterValues,
-} from "./filter-schema";
+import { SORT_OPTIONS } from "./filter-options";
+import { productFilterSchema, type ProductFilterValues } from "./filter-schema";
 
 interface ProductFiltersProps {
   defaultValues?: Partial<ProductFilterValues>;
-  /** Called on Enter in the search box and whenever a dropdown changes. */
-  onChange?: (params: ProductFilterParams) => void;
+  /** Called on Enter in the search box and when the sort changes. */
+  onChange?: (values: ProductFilterValues) => void;
 }
 
+/** The search box and sort above the products. The other filters are in the filter panel. */
 export function ProductFilters({ defaultValues, onChange }: ProductFiltersProps) {
   const form = useForm({
     resolver: zodResolver(productFilterSchema),
-    defaultValues: { ...DEFAULT_FILTERS, ...defaultValues },
+    defaultValues: { search: "", sort: "newest" as const, ...defaultValues },
   });
 
-  const apply = form.handleSubmit((values) => onChange?.(toFilterParams(values)));
+  const apply = form.handleSubmit((values) => onChange?.(values));
 
   return (
     <Form {...form}>
-      <form onSubmit={apply} className="flex flex-col gap-3 sm:flex-row sm:items-start" role="search">
+      <form onSubmit={apply} className="flex flex-1 flex-col gap-3 sm:flex-row sm:items-start" role="search">
         <FormInput<ProductFilterValues>
           name="search"
           type="search"
-          placeholder="Search perfumes or brands…"
-          aria-label="Search perfumes"
+          placeholder="Search the collection…"
+          aria-label="Search products"
           itemClassName="flex-1"
-        />
-        <FormSelect<ProductFilterValues>
-          name="gender"
-          options={GENDER_OPTIONS}
-          triggerClassName="sm:w-40"
-          onValueChange={() => void apply()}
         />
         <FormSelect<ProductFilterValues>
           name="sort"

@@ -18,16 +18,33 @@ function toneFor(seed: string) {
 interface ProductVisualProps {
   name: string;
   className?: string;
-  /** Hide the name engraved on the bottle (for small thumbnails). */
+  /** Hide the name (for small thumbnails). */
   compact?: boolean;
+  /** "bottle" is brand artwork for perfume moments. The default suits any kind of product. */
+  variant?: "monogram" | "bottle";
 }
 
 /**
- * Illustrated perfume bottle, used wherever a product has no photo yet.
+ * Used wherever a product has no photo yet: its initial on a warm backdrop, or an illustrated bottle.
  * Fills its parent, so give the parent a size or aspect ratio.
  */
-export function ProductVisual({ name, className, compact }: ProductVisualProps) {
+export function ProductVisual({ name, className, compact, variant = "monogram" }: ProductVisualProps) {
   const tone = toneFor(name);
+
+  if (variant === "monogram") {
+    return (
+      <div className={cn("relative grid size-full place-items-center overflow-hidden bg-linear-to-b [container-type:inline-size]", tone.bg, className)} role="img" aria-label={name}>
+        <span className="font-heading text-[clamp(1.25rem,30cqw,6rem)] text-[#3d2b1f]/35" aria-hidden>
+          {name.charAt(0)}
+        </span>
+        {!compact && (
+          <span className="absolute bottom-5 px-4 text-center font-heading text-sm tracking-[0.25em] text-[#3d2b1f]/55 uppercase">
+            {name}
+          </span>
+        )}
+      </div>
+    );
+  }
 
   return (
     <div

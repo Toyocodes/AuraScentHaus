@@ -18,6 +18,7 @@ export const routes = {
   FETCH_SINGLE_PRODUCT: (slug: string) => `/products/${id(slug)}`,
   FETCH_CATEGORIES: "/categories",
   FETCH_SINGLE_CATEGORY: (slug: string) => `/categories/${id(slug)}`,
+  FETCH_SCENT_FAMILIES: "/scent-families",
 
   // ── Cart (signed in) ──
   GET_CART: "/cart",
@@ -61,6 +62,11 @@ export const routes = {
   // ── Admin: categories ──
   ADMIN_CATEGORIES: "/admin/categories",
   ADMIN_CATEGORY: (categoryId: string) => `/admin/categories/${id(categoryId)}`,
+  ADMIN_CATEGORY_IMAGE: (categoryId: string) => `/admin/categories/${id(categoryId)}/image`,
+
+  // ── Admin: scent families ──
+  ADMIN_SCENT_FAMILIES: "/admin/scent-families",
+  ADMIN_SCENT_FAMILY: (familyId: string) => `/admin/scent-families/${id(familyId)}`,
 
   // ── Admin: orders ── (POST ADMIN_ORDERS = new in-store sale, PATCH ADMIN_ORDER = edit)
   ADMIN_ORDERS: "/admin/orders",

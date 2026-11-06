@@ -27,7 +27,7 @@ export function VariantRow({ variant, disabled, onUpdate, onDelete }: VariantRow
 
   return (
     <TableRow className={variant.isActive ? undefined : "opacity-50"}>
-      <TableCell>{variant.sizeMl}ml</TableCell>
+      <TableCell>{variant.sizeLabel}</TableCell>
       <TableCell className="text-muted-foreground">{variant.sku}</TableCell>
       <TableCell colSpan={2}>
         <Form {...form}>
@@ -64,7 +64,7 @@ export function VariantRow({ variant, disabled, onUpdate, onDelete }: VariantRow
               Delete
             </Button>
           }
-          title={`Delete the ${variant.sizeMl}ml size?`}
+          title={`Delete the ${variant.sizeLabel} size?`}
           description="Past orders keep their details. To stop selling it for now, hide it instead."
           confirmLabel="Delete size"
           destructive

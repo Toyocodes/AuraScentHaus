@@ -10,6 +10,7 @@ export const ADMIN_NAV: AdminNavItem[] = [
   { href: "/admin", label: "Dashboard", exact: true, permission: "dashboard:view" },
   { href: "/admin/products", label: "Products", permission: "products:read" },
   { href: "/admin/categories", label: "Categories", permission: "categories:write" },
+  { href: "/admin/scent-families", label: "Scent families", permission: "categories:write" },
   { href: "/admin/orders", label: "Orders", permission: "orders:read" },
   { href: "/admin/customers", label: "Customers", permission: "customers:read" },
   { href: "/admin/users", label: "Team & roles", permission: "users:read" },

@@ -290,7 +290,31 @@
               "path": [
                 "categories"
               ]
-            }
+            },
+            "description": "Active categories with products on sale."
+          }
+        },
+        {
+          "name": "Category tree",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/categories?tree=true",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "categories"
+              ],
+              "query": [
+                {
+                  "key": "tree",
+                  "value": "true"
+                }
+              ]
+            },
+            "description": "Main categories with their subcategories, for the menu."
           }
         },
         {
@@ -299,15 +323,74 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/categories/floral",
+              "raw": "{{baseUrl}}/categories/perfumes",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "categories",
-                "floral"
+                "perfumes"
               ]
             }
+          }
+        },
+        {
+          "name": "List scent families",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/scent-families",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "scent-families"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Filter products",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/products?category=personal-fragrance&scent=oud,woody&minPrice=1000000&maxPrice=9000000&inStock=true&sort=price_asc",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "products"
+              ],
+              "query": [
+                {
+                  "key": "category",
+                  "value": "personal-fragrance"
+                },
+                {
+                  "key": "scent",
+                  "value": "oud,woody"
+                },
+                {
+                  "key": "minPrice",
+                  "value": "1000000"
+                },
+                {
+                  "key": "maxPrice",
+                  "value": "9000000"
+                },
+                {
+                  "key": "inStock",
+                  "value": "true"
+                },
+                {
+                  "key": "sort",
+                  "value": "price_asc"
+                }
+              ]
+            },
+            "description": "A main category includes its subcategories. minPrice and maxPrice are in kobo."
           }
         }
       ]
@@ -769,9 +852,10 @@
                 "products"
               ]
             },
+            "description": "Run \"All categories (tree)\" first, to save categoryId. Notes are only accepted in categories with the fragrance pyramid.",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"Amber Nights\",\n  \"brand\": \"AuraScentHaus\",\n  \"description\": \"Warm amber, vanilla and labdanum.\",\n  \"gender\": \"UNISEX\",\n  \"topNotes\": [\n    \"Bergamot\"\n  ],\n  \"heartNotes\": [\n    \"Amber\",\n    \"Labdanum\"\n  ],\n  \"baseNotes\": [\n    \"Vanilla\",\n    \"Musk\"\n  ],\n  \"isFeatured\": false,\n  \"variants\": [\n    {\n      \"sizeMl\": 50,\n      \"sku\": \"AN-50\",\n      \"price\": 4000000,\n      \"stock\": 20\n    },\n    {\n      \"sizeMl\": 100,\n      \"sku\": \"AN-100\",\n      \"price\": 6800000,\n      \"stock\": 10\n    }\n  ]\n}",
+              "raw": "{\n  \"name\": \"Amber Nights\",\n  \"categoryId\": \"{{categoryId}}\",\n  \"scentFamilyIds\": [],\n  \"brand\": \"AuraScentHaus\",\n  \"description\": \"Warm amber, vanilla and labdanum.\",\n  \"gender\": \"UNISEX\",\n  \"topNotes\": [\n    \"Bergamot\"\n  ],\n  \"heartNotes\": [\n    \"Amber\",\n    \"Labdanum\"\n  ],\n  \"baseNotes\": [\n    \"Vanilla\",\n    \"Musk\"\n  ],\n  \"isFeatured\": false,\n  \"variants\": [\n    {\n      \"sizeMl\": 50,\n      \"sku\": \"AN-50\",\n      \"price\": 4000000,\n      \"stock\": 20\n    },\n    {\n      \"sizeMl\": 100,\n      \"sku\": \"AN-100\",\n      \"price\": 6800000,\n      \"stock\": 10\n    }\n  ]\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -962,7 +1046,44 @@
           }
         },
         {
-          "name": "Create category",
+          "name": "All categories (tree)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/admin/categories?tree=true",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "categories"
+              ],
+              "query": [
+                {
+                  "key": "tree",
+                  "value": "true"
+                }
+              ]
+            },
+            "description": "Includes empty and inactive categories. Saves the id of Personal Fragrance > Perfumes as categoryId."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const main = pm.response.json().data?.find((c) => c.slug === 'personal-fragrance');",
+                  "const perfumes = main?.children?.find((c) => c.slug === 'perfumes');",
+                  "if (perfumes) pm.environment.set('categoryId', perfumes.id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Create subcategory",
           "request": {
             "method": "POST",
             "header": [
@@ -983,13 +1104,211 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"Gourmand\",\n  \"description\": \"Sweet, edible notes.\"\n}",
+              "raw": "{\n  \"name\": \"Solid Perfumes\",\n  \"parentId\": \"{{categoryId}}\",\n  \"description\": \"Balms and wax perfumes.\",\n  \"defaultSizeUnit\": \"G\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
                 }
               }
             }
+          }
+        },
+        {
+          "name": "Update category",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/admin/categories/{{categoryId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "categories",
+                "{{categoryId}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"position\": 1,\n  \"isActive\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Upload category image",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/admin/categories/{{categoryId}}/image",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "categories",
+                "{{categoryId}}",
+                "image"
+              ]
+            },
+            "description": "multipart/form-data. Pick one image for the `image` field.",
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "image",
+                  "type": "file",
+                  "src": []
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Delete category (moving its products)",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/admin/categories/{{categoryId}}?reassignTo=PUT_ANOTHER_CATEGORY_ID_HERE",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "categories",
+                "{{categoryId}}"
+              ],
+              "query": [
+                {
+                  "key": "reassignTo",
+                  "value": "PUT_ANOTHER_CATEGORY_ID_HERE"
+                }
+              ]
+            },
+            "description": "reassignTo is required if it has products. Refused if it has subcategories or switches the fragrance pyramid on."
+          }
+        },
+        {
+          "name": "All scent families",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/admin/scent-families",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "scent-families"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const first = pm.response.json().data?.[0];",
+                  "if (first) pm.environment.set('scentFamilyId', first.id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Create scent family",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/admin/scent-families",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "scent-families"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Green\",\n  \"description\": \"Crushed leaves and fresh-cut stems.\",\n  \"position\": 13\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Update scent family",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/admin/scent-families/{{scentFamilyId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "scent-families",
+                "{{scentFamilyId}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"isActive\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Delete scent family",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/admin/scent-families/{{scentFamilyId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "scent-families",
+                "{{scentFamilyId}}"
+              ]
+            },
+            "description": "Refused while products use it."
           }
         },
         {

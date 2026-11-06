@@ -12,4 +12,4 @@ export * from "./scent-notes/scent-notes";
 export * from "./variant-picker/variant-picker";
 export * from "./product-browser/product-browser";
 export * from "./product-page/product-page-content";
-export * from "./collection-page/collection-page-content";
+export * from "./category-page/category-page-content";

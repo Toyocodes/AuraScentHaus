@@ -22,6 +22,6 @@ export type CartResponse = DataResponse<CartDTO>;
 /** useBag().add: the product and size picked on the product page. */
 export interface BagAddInput {
   product: Pick<ProductDetailDTO, "id" | "name" | "slug" | "images">;
-  variant: Pick<VariantDTO, "id" | "sizeMl" | "price" | "stock">;
+  variant: Pick<VariantDTO, "id" | "sizeMl" | "sizeUnit" | "price" | "stock">;
   quantity?: number;
 }

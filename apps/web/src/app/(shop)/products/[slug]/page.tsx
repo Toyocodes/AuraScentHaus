@@ -1,5 +1,12 @@
 import { Suspense } from "react";
+import type { Metadata } from "next";
 import { ProductDetailSkeleton, ProductPageContent } from "@/components/product";
+import { productMetadata } from "@/lib/catalog-metadata";
+
+export async function generateMetadata({ params }: PageProps<"/products/[slug]">): Promise<Metadata> {
+  const { slug } = await params;
+  return productMetadata(slug);
+}
 
 export default function ProductPage({ params }: PageProps<"/products/[slug]">) {
   return (

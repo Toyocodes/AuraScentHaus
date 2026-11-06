@@ -24,7 +24,7 @@ export function OrderLines({ variants, stock }: OrderLinesProps) {
     const left = stock.get(v.variantId) ?? v.stock;
     return {
       value: v.variantId,
-      label: `${v.productName} · ${v.sizeMl} ml · ${formatNaira(v.price)} · ${left > 0 ? `${left} left` : "out of stock"}${v.isActive ? "" : " (hidden online)"}`,
+      label: `${v.productName} · ${v.sizeLabel} · ${formatNaira(v.price)} · ${left > 0 ? `${left} left` : "out of stock"}${v.isActive ? "" : " (hidden online)"}`,
     };
   });
 

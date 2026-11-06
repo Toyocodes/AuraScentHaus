@@ -37,7 +37,7 @@ export function CartItemRow({ item, disabled, onQuantityChange, onRemove }: Cart
             <Link href={href} className="font-heading text-2xl">
               {item.product.name}
             </Link>
-            <p className="eyebrow mt-1">{item.sizeMl} ml · Eau de parfum</p>
+            <p className="mt-1 text-sm text-muted-foreground">{item.sizeLabel}</p>
             {!item.available && <p className="text-sm text-destructive">No longer available</p>}
           </div>
           <Price amount={item.lineTotal} />

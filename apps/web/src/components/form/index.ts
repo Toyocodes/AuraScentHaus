@@ -5,3 +5,5 @@ export * from "./form-checkbox";
 export * from "./submit-button";
 export * from "./form-choice-cards";
 export * from "./quietly";
+export * from "./form-chip-select";
+export * from "./form-tags-input";

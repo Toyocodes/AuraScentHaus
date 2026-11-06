@@ -1,6 +1,6 @@
 # AuraScentHaus
 
-A perfume store. It's an npm-workspaces monorepo:
+A premium fragrance and lifestyle store: perfumes, home fragrance, body care, gifts and accessories. It's an npm-workspaces monorepo:
 
 | Folder            | What                                                                   |
 | ----------------- | ---------------------------------------------------------------------- |
@@ -61,7 +61,7 @@ In `apps/api/.env`, fill in at least `DATABASE_URL`, `DIRECT_URL`, `AUTH_SECRET`
 
 ```bash
 npm run db:migrate   # creates tables (prompts for a migration name, e.g. "init")
-npm run db:seed      # sample categories/perfumes + your SUPER_ADMIN user
+npm run db:seed      # sample products + your SUPER_ADMIN user (the migrations create the categories)
 ```
 
 ### 5. Run
@@ -138,7 +138,7 @@ components/
   common/                 EmptyState, PageHeader, Price, Pagination, ConfirmDialog, SearchForm…
   layout/                 navbar/, footer/, side-nav/, site-shell/
   auth/  product/  cart/  checkout/  address/  order/  account/
-  admin/                  layout/, dashboard/, products/, categories/, orders/, customers/, users/
+  admin/                  layout/, dashboard/, products/, categories/, scent-families/, orders/, customers/, users/
   providers/              QueryProvider (TanStack Query), guest-cart hydration, toaster
 hooks/
   useAxios.ts             The axios instance (baseURL "/api", withCredentials)
@@ -147,8 +147,8 @@ hooks/
   helper/errors.ts        getErrorMessage, applyFieldErrors (API 422 → form fields)
   <module>/types.ts       Request/response types for that module
   <module>/use<Thing>.ts  One hook per endpoint
-  auth/ products/ categories/ cart/ profile/ addresses/ orders/ payments/
-  admin/                  stats/, products/, categories/, orders/, customers/, users/
+  auth/ products/ categories/ scent-families/ cart/ profile/ addresses/ orders/ payments/
+  admin/                  stats/, products/, categories/, scent-families/, orders/, customers/, users/
 store/guest-cart.ts       Zustand cart for signed-out visitors (localStorage)
 ```
 
@@ -169,3 +169,16 @@ const createCategory = useCreateCategory();
 - **Theme and colours:** `apps/web/src/app/globals.css` (shadcn tokens). Fonts are set in `apps/web/src/app/layout.tsx`.
 - **Add shadcn components:** `cd apps/web && npx shadcn@latest add <component>`
 # AuraScentHaus
+
+## The catalogue
+
+- **Categories are what a product is.** They nest up to 3 levels (Personal Fragrance → Perfumes) and are managed in admin. The store's menu, footer and filters all read them from the API.
+- **Empty categories stay hidden.** Shoppers only see active categories with products on sale, so they appear by themselves as you stock them. A deactivated category hides its subcategories and products too.
+- **Scent families are what it smells like.** A product has one category and any number of scent families, and shoppers can filter by scent across every category.
+- **The fragrance pyramid is a setting on the category.** `hasFragrancePyramid` is on for Perfumes and Perfume Oils, and subcategories inherit it. There's no admin switch: to change which categories have notes, update that column. Notes sent for any other category are refused. If a product moves away its notes stay stored but hidden from shoppers, and come back if it moves back.
+- **Sizes have a unit.** `sizeUnit` is `ML`, `G` or `PIECE`. The amount stays in the field named `sizeMl` for compatibility, so a 200 g candle has `sizeMl: 200`. To show a size, always use `sizeLabel` ("200 g", "Set of 3").
+- **Deleting is safe.** A category with products can only be deleted by choosing where to move them. Categories with subcategories, and the ones that switch the pyramid on, are protected. Scent families in use can't be deleted, but can be deactivated.
+
+Filters go in the URL: `/shop/perfumes?scent=oud,woody&min=20000&max=80000&stock=1&gender=WOMEN&sort=price_asc`. Old `/products` and `/collections/*` links redirect.
+
+Run the tests with `npm test`.
