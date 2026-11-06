@@ -63,6 +63,7 @@ export async function listUsers(query: PaginationInput & { role?: Role; search?:
       OR: [
         { email: { contains: query.search, mode: "insensitive" } },
         { name: { contains: query.search, mode: "insensitive" } },
+        { phone: { contains: query.search } },
       ],
     }),
   };

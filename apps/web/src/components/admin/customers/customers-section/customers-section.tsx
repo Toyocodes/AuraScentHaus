@@ -48,7 +48,7 @@ export function CustomersSection() {
         }
       />
       <SearchForm
-        placeholder="Search by email or name…"
+        placeholder="Search by name, email or phone…"
         className="max-w-sm"
         onSearch={(text) => {
           setSearch(text);

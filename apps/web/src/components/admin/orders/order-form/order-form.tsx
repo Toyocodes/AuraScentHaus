@@ -8,7 +8,6 @@ import type {
   AdminUpdateOrderInput,
   OrderDTO,
   SellableVariantDTO,
-  UserDTO,
 } from "@aurascenthaus/shared";
 import { FormTextarea, SubmitButton, quietly } from "@/components/form";
 import { Form } from "@/components/ui/form";
@@ -31,8 +30,6 @@ import { PaymentSection } from "./payment-section";
 interface OrderFormProps {
   /** Every size with price and stock (`useSellableVariants()`). */
   variants: SellableVariantDTO[];
-  /** For "Existing customer" (`useCustomers()`). */
-  customers: Pick<UserDTO, "id" | "email" | "name">[];
   /** First name of the signed-in admin (`useMe()`). Display only: the API records the real one. */
   attendantName: string;
   /** Pass an in-store order to edit it. Leave out to record a new sale. */
@@ -45,7 +42,7 @@ interface OrderFormProps {
 }
 
 /** Record (or edit) a sale made in the shop. */
-export function OrderForm({ variants, customers, attendantName, order, isPending, onCreate, onUpdate }: OrderFormProps) {
+export function OrderForm({ variants, attendantName, order, isPending, onCreate, onUpdate }: OrderFormProps) {
   const editing = Boolean(order);
 
   // What can be sold: current stock, plus (when editing) what this order already holds,
@@ -80,7 +77,7 @@ export function OrderForm({ variants, customers, attendantName, order, isPending
       >
         <div className="space-y-10">
           <OrderLines variants={variants} stock={stock} />
-          <CustomerSection customers={customers} />
+          <CustomerSection initialCustomer={order?.customer} />
           <PaymentSection alreadyPaid={Boolean(order?.paidAt)} />
           <FulfilmentSection disabled={deliveryLocked} />
           <FormTextarea<OrderFormValues>

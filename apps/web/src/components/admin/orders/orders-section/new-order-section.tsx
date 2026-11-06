@@ -21,7 +21,6 @@ export function NewOrderSection() {
   return (
     <OrderForm
       variants={data.variants.data ?? []}
-      customers={data.customers.data?.data ?? []}
       attendantName={data.attendantName}
       isPending={createOrder.isPending}
       onCreate={async (input) => {

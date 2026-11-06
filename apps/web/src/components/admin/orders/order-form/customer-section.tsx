@@ -1,9 +1,10 @@
 "use client";
 
+import { useState } from "react";
 import { UserPlus, UserRound, Users } from "lucide-react";
 import { useFormContext, useWatch } from "react-hook-form";
-import type { UserDTO } from "@aurascenthaus/shared";
-import { FormChoiceCards, FormInput, FormSelect } from "@/components/form";
+import { FormChoiceCards, FormInput } from "@/components/form";
+import { CustomerPicker, type PickedCustomer } from "./customer-picker";
 import type { OrderFormValues } from "./order-form-schema";
 
 const CUSTOMER_OPTIONS = [
@@ -13,27 +14,21 @@ const CUSTOMER_OPTIONS = [
 ] as const;
 
 interface CustomerSectionProps {
-  customers: Pick<UserDTO, "id" | "email" | "name">[];
+  /** The customer already on the order (editing). */
+  initialCustomer?: PickedCustomer | null;
 }
 
-export function CustomerSection({ customers }: CustomerSectionProps) {
+export function CustomerSection({ initialCustomer }: CustomerSectionProps) {
   const { control } = useFormContext<OrderFormValues>();
   const type = useWatch({ control, name: "customerType" });
-  const customerOptions = customers.map((c) => ({ value: c.id, label: c.name ? `${c.name} · ${c.email}` : c.email }));
+  const [picked, setPicked] = useState<PickedCustomer | null>(initialCustomer ?? null);
 
   return (
     <section className="space-y-4">
       <h2 className="text-2xl">Customer</h2>
       <FormChoiceCards<OrderFormValues> name="customerType" options={CUSTOMER_OPTIONS} />
 
-      {type === "existing" && (
-        <FormSelect<OrderFormValues>
-          name="customerId"
-          label="Customer"
-          placeholder={customers.length ? "Choose a customer" : "No customers yet"}
-          options={customerOptions}
-        />
-      )}
+      {type === "existing" && <CustomerPicker picked={picked} onPickedChange={setPicked} />}
       {type === "new" && (
         <div className="grid gap-4 sm:grid-cols-2">
           <FormInput<OrderFormValues> name="newCustomer.name" label="Full name" autoComplete="off" />

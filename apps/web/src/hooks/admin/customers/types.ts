@@ -15,7 +15,7 @@ export interface CustomerDTO extends UserDTO {
 
 /** GET /admin/customers query string */
 export interface CustomerListParams extends PaginationParams {
-  /** Email or name. */
+  /** Email, name or phone. */
   search?: string;
 }
 

@@ -66,7 +66,6 @@ function InStoreEditor({
     <OrderForm
       order={order}
       variants={data.variants.data ?? []}
-      customers={data.customers.data?.data ?? []}
       attendantName={data.attendantName}
       isPending={isSaving}
       onUpdate={onSave}

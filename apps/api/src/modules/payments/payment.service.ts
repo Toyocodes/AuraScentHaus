@@ -198,8 +198,19 @@ export async function confirmPayment(reference: string) {
       name: order.user.name,
       orderId: order.id,
       orderNumber: order.orderNumber,
+      subtotal: order.subtotal,
+      shippingFee: order.shippingFee,
       total: order.total,
       items: order.items,
+      address: order.shipLine1
+        ? ([
+            order.shipFullName,
+            order.shipPhone,
+            order.shipLine1,
+            order.shipLine2,
+            [order.shipCity, order.shipState].filter(Boolean).join(", "),
+          ].filter(Boolean) as string[])
+        : null,
     }).catch((err) => console.error("Order confirmation email failed:", err));
   }
 
