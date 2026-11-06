@@ -1,11 +1,9 @@
 import type { Metadata } from "next";
-import { RolePermissions, UsersTable } from "@/components/admin/users";
-import { PageHeader, SearchForm } from "@/components/common";
-import { mockTeam, mockUser } from "@/mocks";
+import { RolePermissions, UsersSection } from "@/components/admin/users";
+import { PageHeader } from "@/components/common";
 
 export const metadata: Metadata = { title: "Team & roles" };
 
-/** Super admin only (the API requires "users:read" / "users:manage-roles"). Later: `useUsers()` + `useUpdateUserRole()`. */
 export default function AdminUsersPage() {
   return (
     <div className="space-y-12">
@@ -15,8 +13,7 @@ export default function AdminUsersPage() {
           title="Team & roles"
           description="Changing someone's role signs them out everywhere, so the new role applies from their next sign-in."
         />
-        <SearchForm placeholder="Search by email or name…" className="max-w-sm" />
-        <UsersTable users={mockTeam} currentUserId={mockUser.id} />
+        <UsersSection />
       </section>
 
       <section className="space-y-6">

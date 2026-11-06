@@ -4,7 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { nairaToKobo, type UpdateVariantInput, type VariantDTO } from "@aurascenthaus/shared";
 import { ConfirmDialog } from "@/components/common";
-import { FormInput } from "@/components/form";
+import { FormInput, quietly } from "@/components/form";
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 import { TableCell, TableRow } from "@/components/ui/table";
@@ -34,10 +34,12 @@ export function VariantRow({ variant, disabled, onUpdate, onDelete }: VariantRow
           <form
             id={formId}
             className="flex items-start gap-2"
-            onSubmit={form.handleSubmit(async ({ price, stock }) => {
-              await onUpdate?.(variant.id, { price: nairaToKobo(price), stock });
-              form.reset({ price: String(price), stock: String(stock) });
-            })}
+            onSubmit={form.handleSubmit(({ price, stock }) =>
+              quietly(async () => {
+                await onUpdate?.(variant.id, { price: nairaToKobo(price), stock });
+                form.reset({ price: String(price), stock: String(stock) });
+              })(undefined),
+            )}
           >
             <FormInput<VariantStockValues> name="price" type="number" min={0} className="w-28" aria-label="Price in naira" />
             <FormInput<VariantStockValues> name="stock" type="number" min={0} className="w-20" aria-label="Stock" />
@@ -52,7 +54,7 @@ export function VariantRow({ variant, disabled, onUpdate, onDelete }: VariantRow
           size="xs"
           variant="outline"
           disabled={disabled}
-          onClick={() => onUpdate?.(variant.id, { isActive: !variant.isActive })}
+          onClick={() => void quietly(() => onUpdate?.(variant.id, { isActive: !variant.isActive }))(undefined)}
         >
           {variant.isActive ? "Hide" : "Show"}
         </Button>

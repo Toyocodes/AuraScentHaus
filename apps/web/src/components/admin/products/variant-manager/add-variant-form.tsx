@@ -3,7 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import type { VariantInput } from "@aurascenthaus/shared";
-import { FormInput, SubmitButton } from "@/components/form";
+import { FormInput, SubmitButton, quietly } from "@/components/form";
 import { Form } from "@/components/ui/form";
 import { toVariantInput, variantFormSchema, type VariantFormValues } from "../product-schema";
 
@@ -23,10 +23,12 @@ export function AddVariantForm({ isPending, onSubmit }: AddVariantFormProps) {
       <form
         className="flex flex-wrap items-start gap-2"
         noValidate
-        onSubmit={form.handleSubmit(async (values) => {
-          await onSubmit?.(toVariantInput(values));
-          form.reset(EMPTY);
-        })}
+        onSubmit={form.handleSubmit((values) =>
+          quietly(async () => {
+            await onSubmit?.(toVariantInput(values));
+            form.reset(EMPTY);
+          })(undefined),
+        )}
       >
         <FormInput<VariantFormValues> name="sizeMl" placeholder="ml" type="number" className="w-20" aria-label="Size in ml" />
         <FormInput<VariantFormValues> name="sku" placeholder="SKU" className="w-32" aria-label="SKU" />

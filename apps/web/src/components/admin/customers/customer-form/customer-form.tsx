@@ -3,7 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import type { AdminCreateCustomerInput } from "@aurascenthaus/shared";
-import { FormInput, SubmitButton } from "@/components/form";
+import { FormInput, SubmitButton, quietly } from "@/components/form";
 import { Form } from "@/components/ui/form";
 import { customerFormSchema, EMPTY_CUSTOMER, toCustomerInput, type CustomerFormValues } from "./customer-schema";
 
@@ -25,7 +25,7 @@ export function CustomerForm({
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(async (values) => onSubmit?.(toCustomerInput(values)))} className="space-y-4" noValidate>
+      <form onSubmit={form.handleSubmit(quietly((values: CustomerFormValues) => onSubmit?.(toCustomerInput(values))))} className="space-y-4" noValidate>
         <FormInput<CustomerFormValues>
           name="email"
           label="Email"

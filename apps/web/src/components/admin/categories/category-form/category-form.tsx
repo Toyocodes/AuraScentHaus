@@ -3,7 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import type { CategoryInput } from "@aurascenthaus/shared";
-import { FormInput, SubmitButton } from "@/components/form";
+import { FormInput, SubmitButton, quietly } from "@/components/form";
 import { Form } from "@/components/ui/form";
 import { categoryFormSchema, EMPTY_CATEGORY, toCategoryInput, type CategoryFormValues } from "./category-schema";
 
@@ -28,10 +28,12 @@ export function CategoryForm({
       <form
         className="flex flex-wrap items-start gap-2"
         noValidate
-        onSubmit={form.handleSubmit(async (values) => {
-          await onSubmit?.(toCategoryInput(values));
-          form.reset(EMPTY_CATEGORY);
-        })}
+        onSubmit={form.handleSubmit(
+          quietly(async (values: CategoryFormValues) => {
+            await onSubmit?.(toCategoryInput(values));
+            form.reset(EMPTY_CATEGORY);
+          }),
+        )}
       >
         <FormInput<CategoryFormValues> name="name" placeholder="Name, e.g. Gourmand" aria-label="Name" itemClassName="w-56" />
         <FormInput<CategoryFormValues>

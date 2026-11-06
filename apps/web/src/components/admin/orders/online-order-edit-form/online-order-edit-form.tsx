@@ -5,7 +5,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import type { AdminUpdateOrderInput, OrderDTO } from "@aurascenthaus/shared";
 import { AddressFields, addressFormSchema, EMPTY_ADDRESS, toAddressInput } from "@/components/address";
-import { FormTextarea, SubmitButton } from "@/components/form";
+import { FormTextarea, SubmitButton, quietly } from "@/components/form";
 import { Form } from "@/components/ui/form";
 import { canChangeDelivery } from "../order-form/order-form-schema";
 
@@ -41,11 +41,13 @@ export function OnlineOrderEditForm({ order, isPending, onSubmit }: OnlineOrderE
       <form
         noValidate
         className="max-w-2xl space-y-10"
-        onSubmit={form.handleSubmit(async (v) =>
-          onSubmit?.({
-            note: v.note || null,
-            ...(addressEditable && { delivery: toAddressInput(v.delivery) }),
-          }),
+        onSubmit={form.handleSubmit((v) =>
+          quietly(() =>
+            onSubmit?.({
+              note: v.note || null,
+              ...(addressEditable && { delivery: toAddressInput(v.delivery) }),
+            }),
+          )(undefined),
         )}
       >
         <p className="rounded-sm border bg-sand/40 p-4 text-sm text-muted-foreground">

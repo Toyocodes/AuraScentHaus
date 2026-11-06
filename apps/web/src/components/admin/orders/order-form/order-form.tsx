@@ -10,7 +10,7 @@ import type {
   SellableVariantDTO,
   UserDTO,
 } from "@aurascenthaus/shared";
-import { FormTextarea, SubmitButton } from "@/components/form";
+import { FormTextarea, SubmitButton, quietly } from "@/components/form";
 import { Form } from "@/components/ui/form";
 import { AttendantField } from "./attendant-field";
 import { CustomerSection } from "./customer-section";
@@ -71,10 +71,12 @@ export function OrderForm({ variants, customers, attendantName, order, isPending
       <form
         noValidate
         className="grid gap-10 lg:grid-cols-[1fr_22rem]"
-        onSubmit={form.handleSubmit(async (values) => {
-          if (order) await onUpdate?.(toUpdateOrderInput(values, order));
-          else await onCreate?.(toCreateOrderInput(values));
-        })}
+        onSubmit={form.handleSubmit((values) =>
+          quietly(async () => {
+            if (order) await onUpdate?.(toUpdateOrderInput(values, order));
+            else await onCreate?.(toCreateOrderInput(values));
+          })(undefined),
+        )}
       >
         <div className="space-y-10">
           <OrderLines variants={variants} stock={stock} />

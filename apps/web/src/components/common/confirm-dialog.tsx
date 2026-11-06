@@ -52,8 +52,12 @@ export function ConfirmDialog({
             variant={destructive ? "destructive" : "default"}
             disabled={isPending}
             onClick={async () => {
-              await onConfirm?.();
-              setOpen(false);
+              try {
+                await onConfirm?.();
+                setOpen(false);
+              } catch {
+                // Stay open: the parent has shown why it failed.
+              }
             }}
           >
             {isPending ? "Working…" : confirmLabel}

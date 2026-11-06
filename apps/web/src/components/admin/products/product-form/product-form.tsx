@@ -3,7 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { GENDERS, type CategoryDTO, type ProductDetailDTO, type ProductInput } from "@aurascenthaus/shared";
-import { FormCheckbox, FormInput, FormSelect, FormTextarea, SubmitButton } from "@/components/form";
+import { FormCheckbox, FormInput, FormSelect, FormTextarea, SubmitButton, quietly } from "@/components/form";
 import { Form } from "@/components/ui/form";
 import { humanize } from "@/lib/format";
 import {
@@ -44,7 +44,7 @@ export function ProductForm({ product, categories = [], isPending, onSubmit }: P
   return (
     <Form {...form}>
       <form
-        onSubmit={form.handleSubmit(async (values) => onSubmit?.(toProductInput(values, { withVariants: isNew })))}
+        onSubmit={form.handleSubmit((values) => quietly(() => onSubmit?.(toProductInput(values, { withVariants: isNew })))(undefined))}
         className="max-w-2xl space-y-6"
         noValidate
       >

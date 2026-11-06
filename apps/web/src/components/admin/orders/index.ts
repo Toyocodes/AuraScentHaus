@@ -4,3 +4,7 @@ export * from "./order-form/order-form-schema";
 export * from "./order-status-control/order-status-control";
 export * from "./order-status-tabs/order-status-tabs";
 export * from "./orders-table/orders-table";
+export * from "./orders-section/orders-section";
+export * from "./orders-section/order-section";
+export * from "./orders-section/new-order-section";
+export * from "./orders-section/edit-order-section";

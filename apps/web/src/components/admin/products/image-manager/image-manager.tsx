@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef } from "react";
+import { quietly } from "@/components/form";
 import type { ProductImageDTO } from "@aurascenthaus/shared";
 import { Button } from "@/components/ui/button";
 import { ImageTile } from "./image-tile";
@@ -22,7 +23,7 @@ export function ImageManager({ images, isUploading, onUpload, onDelete }: ImageM
 
   async function handleFiles(files: FileList | null) {
     if (!files?.length) return;
-    await onUpload?.(Array.from(files));
+    await quietly(() => onUpload?.(Array.from(files)))(undefined);
     if (input.current) input.current.value = "";
   }
 

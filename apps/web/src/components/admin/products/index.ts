@@ -4,3 +4,6 @@ export * from "./product-form/product-form";
 export * from "./product-schema";
 export * from "./products-table/products-table";
 export * from "./variant-manager/variant-manager";
+export * from "./products-section/products-section";
+export * from "./products-section/new-product-section";
+export * from "./products-section/product-editor-section";

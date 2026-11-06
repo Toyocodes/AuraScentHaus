@@ -6,3 +6,4 @@ export * from "./sales-breakdown/sales-breakdown";
 export * from "./stat-card/stat-card";
 export * from "./stats-grid/stats-grid";
 export * from "./top-products/top-products";
+export * from "./dashboard-section/dashboard-section";

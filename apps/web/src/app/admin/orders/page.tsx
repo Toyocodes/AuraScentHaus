@@ -1,14 +1,12 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 import { Store } from "lucide-react";
-import { OrdersTable, OrderStatusTabs } from "@/components/admin/orders";
-import { PageHeader, SearchForm } from "@/components/common";
+import { OrdersSection } from "@/components/admin/orders";
+import { PageHeader } from "@/components/common";
 import { Button } from "@/components/ui/button";
-import { mockOrders } from "@/mocks";
 
 export const metadata: Metadata = { title: "Orders" };
 
-/** Sample data for now. Later: `useAdminOrders({ status, search })`. */
 export default function AdminOrdersPage() {
   return (
     <div className="space-y-6">
@@ -24,9 +22,7 @@ export default function AdminOrdersPage() {
           </Button>
         }
       />
-      <OrderStatusTabs />
-      <SearchForm placeholder="Order number, customer, email or phone…" className="max-w-sm" />
-      <OrdersTable orders={mockOrders} />
+      <OrdersSection />
     </div>
   );
 }
