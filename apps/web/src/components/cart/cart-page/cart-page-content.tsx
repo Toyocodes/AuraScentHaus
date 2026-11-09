@@ -14,8 +14,23 @@ export function CartPageContent() {
   if (bag.isPending) return <CartPageSkeleton />;
   if (bag.isError) return <QueryError error={bag.error} title="Your bag didn't load" onRetry={() => void bag.refetch()} />;
 
+  // Changes show straight away; if the server refuses one, the bag goes back and this says why.
   const run = (action: Promise<void>) =>
     action.catch((error) => toast.error(getErrorMessage(error, "We couldn't update your bag.")));
+
+  // The line disappears at once, with a few seconds to undo it.
+  const removeWithUndo = (variantId: string) => {
+    const item = bag.cart.items.find((i) => i.variantId === variantId);
+    if (!item) return;
+    const removed = toast(`${item.product.name}, ${item.sizeLabel} removed`, {
+      action: { label: "Undo", onClick: () => void run(bag.restore(item)) },
+      duration: 6000,
+    });
+    bag.remove(variantId).catch((error) => {
+      toast.dismiss(removed);
+      toast.error(getErrorMessage(error, "We couldn't remove this from your bag."));
+    });
+  };
 
   return (
     <CartView
@@ -23,9 +38,11 @@ export function CartPageContent() {
       itemCount={bag.cart.itemCount}
       subtotal={bag.cart.subtotal}
       isSignedIn={bag.isSignedIn}
-      isUpdating={bag.isUpdating}
-      onQuantityChange={(variantId, quantity) => void run(bag.setQuantity(variantId, quantity))}
-      onRemove={(variantId) => void run(bag.remove(variantId))}
+      isSaving={bag.isSaving}
+      onQuantityChange={(variantId, quantity) =>
+        quantity <= 0 ? removeWithUndo(variantId) : void run(bag.setQuantity(variantId, quantity))
+      }
+      onRemove={removeWithUndo}
     />
   );
 }

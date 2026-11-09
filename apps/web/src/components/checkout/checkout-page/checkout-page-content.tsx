@@ -77,6 +77,7 @@ export function CheckoutPageContent() {
         addresses={addresses.data}
         // Stays "Redirecting…" after success, while the browser leaves for Paystack.
         isPending={initializePayment.isPending || initializePayment.isSuccess}
+        isSaving={bag.isSaving}
         onSubmit={pay}
       />
     </div>

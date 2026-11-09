@@ -1,21 +1,20 @@
 "use client";
 
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { queryKeys } from "../helper/query-keys";
 import { routes } from "../helper/routes";
 import { useAxios } from "../useAxios";
+import { setQuantityIn } from "./optimistic-cart";
 import type { CartResponse, UpdateCartItemVariables } from "./types";
+import { useCartWrite } from "./useCartWrite";
 
-/** Set an item's quantity (for the + / − buttons). Quantity 0 removes it. */
+/** Set an item's quantity (for the + / − buttons). Quantity 0 removes it. Shows straight away. */
 export function useUpdateCartItem() {
   const axios = useAxios();
-  const queryClient = useQueryClient();
 
-  return useMutation({
-    mutationFn: async ({ variantId, quantity }: UpdateCartItemVariables) => {
+  return useCartWrite<UpdateCartItemVariables>(
+    async ({ variantId, quantity }) => {
       const { data } = await axios.patch<CartResponse>(routes.UPDATE_CART_ITEM(variantId), { quantity });
       return data.data;
     },
-    onSuccess: (cart) => queryClient.setQueryData(queryKeys.cart.all, cart),
-  });
+    (cart, { variantId, quantity }) => setQuantityIn(cart, variantId, quantity),
+  );
 }

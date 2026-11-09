@@ -39,6 +39,9 @@ export function MobileMenu({ categories, scentFamilies }: MobileMenuProps) {
           <SheetTitle className="font-heading text-xl tracking-[0.25em] uppercase">AuraScentHaus</SheetTitle>
         </SheetHeader>
         <nav className="flex flex-col px-4 pb-8" aria-label="Shop">
+          <CloseLink href="/" className={ROW}>
+            Home
+          </CloseLink>
           <CloseLink href="/shop" className={ROW}>
             Shop all
           </CloseLink>

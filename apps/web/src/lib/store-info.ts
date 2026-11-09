@@ -21,9 +21,9 @@ export const STORE = {
     elsewhere: "3 to 7 working days",
   },
   /** Days after delivery that unopened items can be returned. */
-  returnDays: 7,
+  returnDays: 2,
   /** Hours after delivery to report a damaged or wrong item. */
-  reportProblemHours: 48,
+  reportProblemHours: 24,
   /** Shown at the top of the policy pages. Update it whenever you change a policy. */
   policiesUpdated: "9 November 2026",
 } as const;

@@ -43,16 +43,16 @@ export function ProductPageContent({ slug }: { slug: string }) {
     <div className="space-y-24">
       <ProductDetail
         product={product}
-        isAdding={bag.isUpdating}
-        onAddToCart={async (variant: VariantDTO) => {
-          try {
-            await bag.add({ product, variant });
-            toast.success(`${product.name}, ${variant.sizeLabel} added to your bag`, {
-              action: { label: "View bag", onClick: () => router.push("/cart") },
-            });
-          } catch (err) {
+        onAddToCart={(variant: VariantDTO) => {
+          // The bag count goes up straight away. If the server then refuses (e.g. the last one just
+          // sold), the count goes back down and the message changes to say why.
+          const added = toast.success(`${product.name}, ${variant.sizeLabel} added to your bag`, {
+            action: { label: "View bag", onClick: () => router.push("/cart") },
+          });
+          bag.add({ product, variant }).catch((err) => {
+            toast.dismiss(added);
             toast.error(getErrorMessage(err, "We couldn't add this to your bag."));
-          }
+          });
         }}
       />
       <RelatedProducts slug={slug} category={product.category?.slug} />

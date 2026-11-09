@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, useWatch } from "react-hook-form";
 import {
@@ -23,6 +24,7 @@ import { Form } from "@/components/ui/form";
 import { humanize } from "@/lib/format";
 import { productFormSchema, toProductFormValues, toProductInput, type ProductFormValues } from "../product-schema";
 import { FragrancePyramidFields } from "./fragrance-pyramid-fields";
+import { PendingPhotos, type PendingPhoto } from "./pending-photos";
 import { VariantFields } from "./variant-fields";
 
 const GENDER_OPTIONS = GENDERS.map((g) => ({ value: g, label: humanize(g) }));
@@ -33,13 +35,19 @@ interface ProductFormProps {
   categories?: CategoryDTO[];
   scentFamilies?: ScentFamilyDTO[];
   isPending?: boolean;
-  /** Wire to `useCreateProduct()` or `useUpdateProduct()`. */
-  onSubmit?: (input: ProductInput) => void | Promise<void>;
+  /** Shown on the button while saving, e.g. "Uploading photos…". */
+  pendingLabel?: string;
+  /**
+   * Wire to `useCreateProduct()` or `useUpdateProduct()`. When creating, `photos` are the files
+   * chosen on the form, in order (the first is the cover), to upload once the product exists.
+   */
+  onSubmit?: (input: ProductInput, photos: File[]) => void | Promise<void>;
 }
 
 /** Create a product (with its sizes), or edit an existing product's details. */
-export function ProductForm({ product, categories = [], scentFamilies = [], isPending, onSubmit }: ProductFormProps) {
+export function ProductForm({ product, categories = [], scentFamilies = [], isPending, pendingLabel, onSubmit }: ProductFormProps) {
   const isNew = !product;
+  const [photos, setPhotos] = useState<PendingPhoto[]>([]);
   const form = useForm({
     resolver: zodResolver(productFormSchema),
     defaultValues: toProductFormValues(product),
@@ -54,7 +62,12 @@ export function ProductForm({ product, categories = [], scentFamilies = [], isPe
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit((values) =>
-          quietly(() => onSubmit?.(toProductInput(values, { withVariants: isNew, allowNotes, usesGender })))(undefined),
+          quietly(() =>
+            onSubmit?.(
+              toProductInput(values, { withVariants: isNew, allowNotes, usesGender }),
+              photos.map((p) => p.file),
+            ),
+          )(undefined),
         )}
         className="max-w-2xl space-y-6"
         noValidate
@@ -87,9 +100,11 @@ export function ProductForm({ product, categories = [], scentFamilies = [], isPe
           <FormCheckbox<ProductFormValues> name="isFeatured" label="Featured on home page" />
         </div>
 
+        {isNew && <PendingPhotos photos={photos} onChange={setPhotos} disabled={isPending} />}
+
         {isNew && <VariantFields defaultUnit={category?.defaultSizeUnit} />}
 
-        <SubmitButton isPending={isPending}>{isNew ? "Create product" : "Save changes"}</SubmitButton>
+        <SubmitButton isPending={isPending} pendingLabel={pendingLabel}>{isNew ? "Create product" : "Save changes"}</SubmitButton>
       </form>
     </Form>
   );

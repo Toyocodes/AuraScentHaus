@@ -13,6 +13,10 @@ import {
 } from "@/components/ui/navigation-menu";
 import { cn } from "@/lib/utils";
 
+/** A top-level item that is a plain link, styled like the menu triggers. */
+const TOP_LINK =
+  "flex h-11 items-center rounded-none px-3 text-[0.75rem] tracking-[0.14em] text-muted-foreground uppercase transition-colors hover:bg-transparent hover:text-foreground focus:bg-transparent lg:px-4";
+
 const TOP_LEVEL =
   "h-11 rounded-none bg-transparent px-3 text-[0.75rem] font-normal tracking-[0.14em] text-muted-foreground uppercase transition-colors hover:bg-transparent hover:text-foreground focus:bg-transparent focus:text-foreground data-open:bg-transparent data-open:text-foreground data-open:hover:bg-transparent data-open:focus:bg-transparent lg:px-4";
 
@@ -54,6 +58,12 @@ export function MegaMenu({ categories, scentFamilies }: MegaMenuProps) {
     // lines up with the whole header rather than its own menu item.
     <NavigationMenu viewport={false} delayDuration={80} className="static max-w-none [&>div]:static!" aria-label="Shop">
       <NavigationMenuList>
+        <NavigationMenuItem>
+          <NavigationMenuLink asChild className={TOP_LINK}>
+            <Link href="/">Home</Link>
+          </NavigationMenuLink>
+        </NavigationMenuItem>
+
         <NavigationMenuItem className="static">
           <NavigationMenuTrigger className={TOP_LEVEL}>Shop</NavigationMenuTrigger>
           <NavigationMenuContent className={PANEL}>
@@ -118,10 +128,7 @@ export function MegaMenu({ categories, scentFamilies }: MegaMenuProps) {
         ))}
 
         <NavigationMenuItem>
-          <NavigationMenuLink
-            asChild
-            className="flex h-11 items-center rounded-none px-3 text-[0.75rem] tracking-[0.14em] text-muted-foreground uppercase transition-colors hover:bg-transparent hover:text-foreground focus:bg-transparent lg:px-4"
-          >
+          <NavigationMenuLink asChild className={TOP_LINK}>
             <Link href="/shop?sort=newest">New Arrivals</Link>
           </NavigationMenuLink>
         </NavigationMenuItem>

@@ -16,11 +16,13 @@ interface CheckoutFormProps {
   subtotal: number;
   addresses?: AddressDTO[];
   isPending?: boolean;
+  /** Bag changes are still saving: wait, so the order uses the latest quantities. */
+  isSaving?: boolean;
 
   onSubmit?: (input: CheckoutInput) => void | Promise<void>;
 }
 
-export function CheckoutForm({ items, subtotal, addresses = [], isPending, onSubmit }: CheckoutFormProps) {
+export function CheckoutForm({ items, subtotal, addresses = [], isPending, isSaving, onSubmit }: CheckoutFormProps) {
   const defaultAddress = addresses.find((a) => a.isDefault) ?? addresses[0];
 
   const form = useForm({
@@ -65,11 +67,11 @@ export function CheckoutForm({ items, subtotal, addresses = [], isPending, onSub
           <SubmitButton
             size="lg"
             className="w-full"
-            disabled={items.length === 0}
+            disabled={items.length === 0 || isSaving}
             isPending={isPending}
             pendingLabel="Redirecting to Paystack…"
           >
-            Pay with Paystack
+            {isSaving ? "Saving your bag…" : "Pay with Paystack"}
           </SubmitButton>
           <p className="text-center text-xs leading-relaxed text-muted-foreground">
             By paying, you agree to our{" "}

@@ -9,9 +9,11 @@ interface CartSummaryProps {
   /** In kobo. */
   subtotal: number;
   isSignedIn?: boolean;
+  /** Changes are still saving, so checking out would use an old quantity. */
+  isSaving?: boolean;
 }
 
-export function CartSummary({ itemCount, subtotal, isSignedIn = false }: CartSummaryProps) {
+export function CartSummary({ itemCount, subtotal, isSignedIn = false, isSaving = false }: CartSummaryProps) {
   return (
     <aside className="h-fit space-y-4 rounded-sm border bg-card p-6">
       <h2 className="text-xl">Summary</h2>
@@ -19,9 +21,15 @@ export function CartSummary({ itemCount, subtotal, isSignedIn = false }: CartSum
       <SummaryRow label="Shipping" value="Calculated at checkout" />
       <Separator />
       <SummaryRow label="Subtotal" value={formatNaira(subtotal)} strong />
-      <Button size="lg" className="w-full" asChild>
-        <Link href={isSignedIn ? "/checkout" : "/login?next=/checkout"}>Checkout</Link>
-      </Button>
+      {isSaving ? (
+        <Button size="lg" className="w-full" disabled>
+          Saving your bag…
+        </Button>
+      ) : (
+        <Button size="lg" className="w-full" asChild>
+          <Link href={isSignedIn ? "/checkout" : "/login?next=/checkout"}>Checkout</Link>
+        </Button>
+      )}
       {!isSignedIn && (
         <p className="text-center text-xs text-muted-foreground">
           Sign in with your email to check out. Your bag will be saved to your account.

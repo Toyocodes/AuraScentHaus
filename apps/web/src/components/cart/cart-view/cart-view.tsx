@@ -12,7 +12,8 @@ interface CartViewProps {
   itemCount: number;
   subtotal: number;
   isSignedIn?: boolean;
-  isUpdating?: boolean;
+  /** Changes are still saving: the Checkout button waits. The rows stay usable. */
+  isSaving?: boolean;
   onQuantityChange?: (variantId: string, quantity: number) => void;
   onRemove?: (variantId: string) => void;
 }
@@ -22,7 +23,7 @@ export function CartView({
   itemCount,
   subtotal,
   isSignedIn,
-  isUpdating,
+  isSaving,
   onQuantityChange,
   onRemove,
 }: CartViewProps) {
@@ -47,13 +48,12 @@ export function CartView({
           <CartItemRow
             key={item.variantId}
             item={item}
-            disabled={isUpdating}
             onQuantityChange={onQuantityChange}
             onRemove={onRemove}
           />
         ))}
       </ul>
-      <CartSummary itemCount={itemCount} subtotal={subtotal} isSignedIn={isSignedIn} />
+      <CartSummary itemCount={itemCount} subtotal={subtotal} isSignedIn={isSignedIn} isSaving={isSaving} />
     </div>
   );
 }

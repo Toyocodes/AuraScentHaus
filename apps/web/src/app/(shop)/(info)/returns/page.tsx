@@ -24,7 +24,9 @@ export default function ReturnsPage() {
       <InfoSection title="Changed your mind?">
         <p>
           You can return items that are <strong>unopened, unused and still sealed</strong> in their original packaging within{" "}
-          <strong>{STORE.returnDays} days of delivery</strong>.
+          <strong>
+            {STORE.returnDays} days ({STORE.returnDays * 24} hours) of delivery
+          </strong>.
         </p>
         <p>For hygiene reasons we can&rsquo;t accept returns of:</p>
         <ul>
