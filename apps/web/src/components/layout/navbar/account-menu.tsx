@@ -31,10 +31,18 @@ export function AccountMenu({ user, onSignOut, isPending }: AccountMenuProps) {
   }
 
   if (!user) {
+    // An icon on phones, where the words don't fit beside the logo.
     return (
-      <Button variant="ghost" size="sm" asChild>
-        <Link href="/login">Sign in</Link>
-      </Button>
+      <>
+        <Button variant="ghost" size="icon" asChild className="sm:hidden">
+          <Link href="/login" aria-label="Sign in">
+            <User />
+          </Link>
+        </Button>
+        <Button variant="ghost" size="sm" asChild className="hidden sm:inline-flex">
+          <Link href="/login">Sign in</Link>
+        </Button>
+      </>
     );
   }
 

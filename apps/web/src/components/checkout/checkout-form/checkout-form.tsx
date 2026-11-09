@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, useWatch } from "react-hook-form";
 import type { AddressDTO, CartItemDTO, CheckoutInput } from "@aurascenthaus/shared";
@@ -15,10 +16,7 @@ interface CheckoutFormProps {
   subtotal: number;
   addresses?: AddressDTO[];
   isPending?: boolean;
-  /**
-   * Wire to `useInitializePayment().mutateAsync`, then
-   * `window.location.assign(data.authorizationUrl)` to go to Paystack.
-   */
+
   onSubmit?: (input: CheckoutInput) => void | Promise<void>;
 }
 
@@ -73,6 +71,17 @@ export function CheckoutForm({ items, subtotal, addresses = [], isPending, onSub
           >
             Pay with Paystack
           </SubmitButton>
+          <p className="text-center text-xs leading-relaxed text-muted-foreground">
+            By paying, you agree to our{" "}
+            <Link href="/terms" target="_blank" className="underline underline-offset-4 hover:text-foreground">
+              terms
+            </Link>{" "}
+            and{" "}
+            <Link href="/returns" target="_blank" className="underline underline-offset-4 hover:text-foreground">
+              returns policy
+            </Link>
+            .
+          </p>
         </OrderSummary>
       </form>
     </Form>

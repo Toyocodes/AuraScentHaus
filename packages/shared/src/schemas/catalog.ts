@@ -21,6 +21,8 @@ export const categorySchema = z.object({
   parentId: idSchema.nullable().optional(),
   position: z.number().int().min(0).max(9999).optional(),
   isActive: z.boolean().optional(),
+  /** Products here (and in subcategories) may have top, heart and base notes. */
+  hasFragrancePyramid: z.boolean().optional(),
   usesGender: z.boolean().optional(),
   defaultSizeUnit: z.enum(SIZE_UNITS).optional(),
 });
@@ -97,7 +99,8 @@ export type ProductInput = z.infer<typeof productSchema>;
 export const updateProductSchema = productFields.partial();
 export type UpdateProductInput = z.infer<typeof updateProductSchema>;
 
-export const PRODUCT_SORTS = ["newest", "price_asc", "price_desc", "name"] as const;
+/** "popular" = most units sold on paid orders. */
+export const PRODUCT_SORTS = ["newest", "popular", "price_asc", "price_desc", "name"] as const;
 export type ProductSort = (typeof PRODUCT_SORTS)[number];
 
 export const productQuerySchema = paginationSchema.extend({

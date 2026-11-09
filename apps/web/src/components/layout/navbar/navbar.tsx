@@ -27,7 +27,7 @@ export function Navbar({ user = null, cartCount = 0, onSignOut, isUserPending, c
             <MobileMenu categories={categories} scentFamilies={scentFamilies} />
           </div>
 
-          <Link href="/" className="text-center font-heading text-xl tracking-[0.3em] uppercase sm:text-2xl">
+          <Link href="/" className="text-center font-heading text-lg tracking-[0.22em] uppercase sm:text-2xl sm:tracking-[0.3em]">
             Aura<span className="text-gold">Scent</span>Haus
           </Link>
 

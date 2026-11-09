@@ -36,6 +36,7 @@ export function toCategoryDTO(c: Category, rows: readonly CategoryNode[]): Categ
     hasFragrancePyramid: flags.hasFragrancePyramid,
     usesGender: flags.usesGender,
     defaultSizeUnit: c.defaultSizeUnit,
+    own: { hasFragrancePyramid: c.hasFragrancePyramid, usesGender: c.usesGender },
   };
 }
 
@@ -124,8 +125,8 @@ export async function setCategoryImage(id: string, imageUrl: string) {
 
 /**
  * A category with products can only be deleted by moving them somewhere else first, in one
- * transaction. Subcategories must be moved by hand, and the fragrance-pyramid categories are
- * protected because the perfume rules depend on them.
+ * transaction. Subcategories must be moved by hand, and a category with fragrance notes
+ * switched on must have them switched off first.
  */
 export async function deleteCategory(id: string, reassignTo?: string) {
   await prisma.$transaction(async (tx) => {
@@ -136,7 +137,7 @@ export async function deleteCategory(id: string, reassignTo?: string) {
     if (!category) throw ApiError.notFound("Category");
 
     if (category.hasFragrancePyramid) {
-      throw ApiError.conflict(`${category.name} can't be deleted because fragrance notes depend on it. Deactivate it instead.`, "CATEGORY_PROTECTED");
+      throw ApiError.conflict(`${category.name} has fragrance notes switched on. Edit it and switch them off first, or deactivate it instead.`, "CATEGORY_PROTECTED");
     }
     if (category._count.children > 0) {
       throw ApiError.conflict(`Move or delete the ${category._count.children} subcategories of ${category.name} first.`, "CATEGORY_HAS_CHILDREN", {

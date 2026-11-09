@@ -175,10 +175,14 @@ const createCategory = useCreateCategory();
 - **Categories are what a product is.** They nest up to 3 levels (Personal Fragrance → Perfumes) and are managed in admin. The store's menu, footer and filters all read them from the API.
 - **Empty categories stay hidden.** Shoppers only see active categories with products on sale, so they appear by themselves as you stock them. A deactivated category hides its subcategories and products too.
 - **Scent families are what it smells like.** A product has one category and any number of scent families, and shoppers can filter by scent across every category.
-- **The fragrance pyramid is a setting on the category.** `hasFragrancePyramid` is on for Perfumes and Perfume Oils, and subcategories inherit it. There's no admin switch: to change which categories have notes, update that column. Notes sent for any other category are refused. If a product moves away its notes stay stored but hidden from shoppers, and come back if it moves back.
+- **The fragrance pyramid is a setting on the category.** `hasFragrancePyramid` is on for Perfumes and Perfume Oils, and subcategories inherit it. Switch it on or off in Admin → Categories. Notes sent for any other category are refused. If a product moves away its notes stay stored but hidden from shoppers, and come back if it moves back.
 - **Sizes have a unit.** `sizeUnit` is `ML`, `G` or `PIECE`. The amount stays in the field named `sizeMl` for compatibility, so a 200 g candle has `sizeMl: 200`. To show a size, always use `sizeLabel` ("200 g", "Set of 3").
 - **Deleting is safe.** A category with products can only be deleted by choosing where to move them. Categories with subcategories, and the ones that switch the pyramid on, are protected. Scent families in use can't be deleted, but can be deactivated.
 
 Filters go in the URL: `/shop/perfumes?scent=oud,woody&min=20000&max=80000&stock=1&gender=WOMEN&sort=price_asc`. Old `/products` and `/collections/*` links redirect.
+
+Customers are emailed when their order is confirmed, shipped, delivered or cancelled (a cancelled order only if it was paid).
+
+The shop's contact details and policy numbers (return window, delivery times) are in `apps/web/src/lib/store-info.ts`, used by the About, Contact, Shipping, Returns, Privacy and Terms pages.
 
 Run the tests with `npm test`.

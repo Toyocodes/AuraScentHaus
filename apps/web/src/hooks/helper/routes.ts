@@ -67,6 +67,7 @@ export const routes = {
   // ── Admin: scent families ──
   ADMIN_SCENT_FAMILIES: "/admin/scent-families",
   ADMIN_SCENT_FAMILY: (familyId: string) => `/admin/scent-families/${id(familyId)}`,
+  ADMIN_SCENT_FAMILY_IMAGE: (familyId: string) => `/admin/scent-families/${id(familyId)}/image`,
 
   // ── Admin: orders ── (POST ADMIN_ORDERS = new in-store sale, PATCH ADMIN_ORDER = edit)
   ADMIN_ORDERS: "/admin/orders",

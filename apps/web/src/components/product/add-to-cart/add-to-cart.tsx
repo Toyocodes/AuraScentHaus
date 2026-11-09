@@ -29,9 +29,7 @@ export function AddToCart({ product, isPending, onAdd }: AddToCartProps) {
       <Button size="lg" className="w-full" disabled={outOfStock || isPending} onClick={() => onAdd?.(variant)}>
         {outOfStock ? "Out of stock" : isPending ? "Adding…" : "Add to bag"}
       </Button>
-      <p className="text-center text-xs text-muted-foreground">
-        Secure payment with Paystack · Your bag is saved to your account
-      </p>
+      
     </div>
   );
 }

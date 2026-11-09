@@ -8,7 +8,8 @@ import { prisma } from "../../config/prisma.js";
 import type { Prisma } from "../../generated/prisma/client.js";
 import { ApiError } from "../../utils/api-error.js";
 import { paginated, toSkipTake } from "../../utils/pagination.js";
-import { orderInclude, toOrderDTO } from "./orders.mapper.js";
+import { sendOrderStatusEmail, type NotifiedStatus } from "../../emails/order-status.js";
+import { addressLines, orderInclude, toOrderDTO, type OrderRow } from "./orders.mapper.js";
 
 // ─── Customer ────────────────────────────────────────────────
 
@@ -97,5 +98,30 @@ export async function adminUpdateOrderStatus(orderId: string, next: OrderStatus)
     return tx.order.update({ where: { id: orderId }, data: { status: next }, include: orderInclude });
   });
 
+  notifyCustomer(updated);
   return toOrderDTO(updated, { includeCustomer: true });
+}
+
+const NOTIFIED: readonly OrderStatus[] = ["SHIPPED", "DELIVERED", "CANCELLED"] satisfies NotifiedStatus[];
+
+/**
+ * Emails the customer when their order ships, arrives or is cancelled. Sent after the change is
+ * saved, and a failed email never undoes it. Unpaid checkouts that are cancelled aren't emailed:
+ * the customer simply left the payment page.
+ */
+function notifyCustomer(order: OrderRow) {
+  if (!order.user || !NOTIFIED.includes(order.status)) return;
+  if (order.status === "CANCELLED" && !order.paidAt) return;
+
+  sendOrderStatusEmail({
+    to: order.user.email,
+    name: order.user.name,
+    orderId: order.id,
+    orderNumber: order.orderNumber,
+    status: order.status as NotifiedStatus,
+    total: order.total,
+    wasPaid: order.paidAt !== null,
+    items: order.items,
+    address: addressLines(order),
+  }).catch((err) => console.error(`Order ${order.status.toLowerCase()} email failed:`, err));
 }

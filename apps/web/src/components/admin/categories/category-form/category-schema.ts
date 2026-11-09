@@ -10,6 +10,7 @@ export const categoryFormSchema = z.object({
   parentId: z.string(),
   position: z.coerce.number<string | number>().int("Whole numbers only").min(0, "Can't be negative").max(9999),
   isActive: z.boolean(),
+  hasFragrancePyramid: z.boolean(),
   usesGender: z.boolean(),
   defaultSizeUnit: z.enum(SIZE_UNITS),
 });
@@ -23,7 +24,9 @@ export function toCategoryFormValues(category?: CategoryDTO, parentId?: string):
     parentId: category?.parentId ?? parentId ?? NO_PARENT,
     position: String(category?.position ?? 0),
     isActive: category?.isActive ?? true,
-    usesGender: category?.usesGender ?? false,
+    // Only what's ticked on this category: inherited settings are shown separately.
+    hasFragrancePyramid: category?.own.hasFragrancePyramid ?? false,
+    usesGender: category?.own.usesGender ?? false,
     defaultSizeUnit: category?.defaultSizeUnit ?? "ML",
   };
 }
@@ -36,6 +39,7 @@ export function toCategoryInput(values: ParsedCategoryValues): CategoryInput {
     parentId: values.parentId === NO_PARENT ? null : values.parentId,
     position: values.position,
     isActive: values.isActive,
+    hasFragrancePyramid: values.hasFragrancePyramid,
     usesGender: values.usesGender,
     defaultSizeUnit: values.defaultSizeUnit,
   };

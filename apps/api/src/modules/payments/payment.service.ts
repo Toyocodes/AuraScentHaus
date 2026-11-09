@@ -9,7 +9,7 @@ import { ApiError } from "../../utils/api-error.js";
 import { randomHex, safeEqual } from "../../utils/crypto.js";
 import { generateOrderNumber } from "../../utils/order-number.js";
 import { calculateShippingFee } from "../orders/shipping.js";
-import { orderInclude, toOrderDTO } from "../orders/orders.mapper.js";
+import { addressLines, orderInclude, toOrderDTO } from "../orders/orders.mapper.js";
 
 /**
  * Checkout flow
@@ -203,15 +203,7 @@ export async function confirmPayment(reference: string) {
       shippingFee: order.shippingFee,
       total: order.total,
       items: order.items,
-      address: order.shipLine1
-        ? ([
-            order.shipFullName,
-            order.shipPhone,
-            order.shipLine1,
-            order.shipLine2,
-            [order.shipCity, order.shipState].filter(Boolean).join(", "),
-          ].filter(Boolean) as string[])
-        : null,
+      address: addressLines(order),
     }).catch((err) => console.error("Order confirmation email failed:", err));
   }
 

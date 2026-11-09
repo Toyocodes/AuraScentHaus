@@ -12,6 +12,7 @@ type Row = {
   name: string;
   slug: string;
   description: string | null;
+  imageUrl: string | null;
   position: number;
   isActive: boolean;
   _count: { products: number };
@@ -23,6 +24,7 @@ function toDTO(row: Row): ScentFamilyDTO {
     name: row.name,
     slug: row.slug,
     description: row.description,
+    imageUrl: row.imageUrl,
     position: row.position,
     isActive: row.isActive,
     productCount: row._count.products,
@@ -63,6 +65,15 @@ export async function updateScentFamily(id: string, input: UpdateScentFamilyInpu
   const row = await prisma.scentFamily.update({
     where: { id },
     data: { ...input, ...(input.slug && { slug: slugify(input.slug) }) },
+    include: { _count: { select: { products: true } } },
+  });
+  return toDTO(row);
+}
+
+export async function setScentFamilyImage(id: string, imageUrl: string) {
+  const row = await prisma.scentFamily.update({
+    where: { id },
+    data: { imageUrl },
     include: { _count: { select: { products: true } } },
   });
   return toDTO(row);

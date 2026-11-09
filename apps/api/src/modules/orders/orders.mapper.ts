@@ -7,7 +7,17 @@ export const orderInclude = {
   user: { select: { id: true, email: true, name: true, phone: true } },
 } satisfies Prisma.OrderInclude;
 
-type OrderRow = Prisma.OrderGetPayload<{ include: typeof orderInclude }>;
+export type OrderRow = Prisma.OrderGetPayload<{ include: typeof orderInclude }>;
+
+type ShipFields = Pick<OrderRow, "shipFullName" | "shipPhone" | "shipLine1" | "shipLine2" | "shipCity" | "shipState">;
+
+/** The delivery address as lines for an email, or null if it was collected in store. */
+export function addressLines(o: ShipFields): string[] | null {
+  if (!o.shipLine1) return null;
+  return [o.shipFullName, o.shipPhone, o.shipLine1, o.shipLine2, [o.shipCity, o.shipState].filter(Boolean).join(", ")].filter(
+    (line): line is string => Boolean(line),
+  );
+}
 
 function toShippingAddress(o: OrderRow): OrderDTO["shippingAddress"] {
   if (!o.shipLine1 || !o.shipFullName) return null; // collected in store

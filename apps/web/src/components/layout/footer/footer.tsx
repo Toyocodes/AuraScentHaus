@@ -3,6 +3,15 @@ import { FooterShopLinks } from "./footer-shop-links";
 
 const COLUMNS = [
   {
+    title: "Help",
+    links: [
+      { href: "/contact", label: "Contact us" },
+      { href: "/shipping", label: "Shipping and delivery" },
+      { href: "/returns", label: "Returns and refunds" },
+      { href: "/about", label: "About us" },
+    ],
+  },
+  {
     title: "Account",
     links: [
       { href: "/login", label: "Sign in" },
@@ -16,8 +25,8 @@ const COLUMNS = [
 export function Footer() {
   return (
     <footer className="mt-auto bg-espresso text-espresso-foreground">
-      <div className="container-page grid gap-12 py-16 md:grid-cols-[2fr_1fr_1fr]">
-        <div className="max-w-sm space-y-4">
+      <div className="container-page grid gap-12 py-16 sm:grid-cols-2 lg:grid-cols-[2fr_1fr_1fr_1fr]">
+        <div className="max-w-sm space-y-4 sm:col-span-2 lg:col-span-1">
           <p className="font-heading text-2xl tracking-[0.3em] uppercase">
             Aura<span className="text-gold">Scent</span>Haus
           </p>
@@ -48,7 +57,15 @@ export function Footer() {
       <div className="border-t border-espresso-foreground/10">
         <div className="container-page flex flex-col gap-2 py-6 text-xs text-espresso-foreground/55 sm:flex-row sm:justify-between">
           <p>© AuraScentHaus. All rights reserved.</p>
-          <p>Payments secured by Paystack</p>
+          <nav aria-label="Policies" className="flex flex-wrap gap-x-5 gap-y-2">
+            <Link href="/privacy" className="transition-colors hover:text-espresso-foreground">
+              Privacy
+            </Link>
+            <Link href="/terms" className="transition-colors hover:text-espresso-foreground">
+              Terms
+            </Link>
+            <span>Payments secured by Paystack</span>
+          </nav>
         </div>
       </div>
     </footer>

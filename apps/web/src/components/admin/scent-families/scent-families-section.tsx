@@ -2,6 +2,7 @@
 
 import { Plus } from "lucide-react";
 import { toast } from "sonner";
+import { ImagePickerButton } from "@/components/admin/common/image-picker-button";
 import { ConfirmDialog, EmptyState, PageHeader, QueryError } from "@/components/common";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -12,6 +13,7 @@ import {
   useCreateScentFamily,
   useDeleteScentFamily,
   useUpdateScentFamily,
+  useUploadScentFamilyImage,
 } from "@/hooks/admin/scent-families";
 import { usePermission } from "@/hooks/auth";
 import { toastAndRethrow } from "@/lib/toast-failure";
@@ -24,6 +26,7 @@ export function ScentFamiliesSection() {
   const createFamily = useCreateScentFamily();
   const updateFamily = useUpdateScentFamily();
   const deleteFamily = useDeleteScentFamily();
+  const uploadImage = useUploadScentFamilyImage();
   const canEdit = can("categories:write");
   const canDelete = can("categories:delete");
 
@@ -32,7 +35,7 @@ export function ScentFamiliesSection() {
       <PageHeader
         eyebrow="Catalog"
         title="Scent families"
-        description="What a product smells like, whatever kind of product it is. Shoppers can filter by these everywhere."
+        description="What a product smells like, whatever kind of product it is. Shoppers can filter by these everywhere. Click a square to add a picture for the home page."
         actions={
           canEdit && (
             <ScentFamilyDialog
@@ -71,8 +74,23 @@ export function ScentFamiliesSection() {
             {families.data.map((f) => (
               <TableRow key={f.id} className={f.isActive ? undefined : "opacity-60"}>
                 <TableCell>
-                  <p className="font-medium">{f.name}</p>
-                  {f.description && <p className="max-w-md truncate text-xs text-muted-foreground">{f.description}</p>}
+                  <div className="flex items-center gap-3">
+                    <ImagePickerButton
+                      imageUrl={f.imageUrl}
+                      name={f.name}
+                      canEdit={canEdit}
+                      onPick={async (file) => {
+                        await uploadImage
+                          .mutateAsync({ familyId: f.id, file })
+                          .catch(toastAndRethrow("We couldn't upload this picture."));
+                        toast.success("Picture updated.");
+                      }}
+                    />
+                    <div className="min-w-0">
+                      <p className="font-medium">{f.name}</p>
+                      {f.description && <p className="max-w-md truncate text-xs text-muted-foreground">{f.description}</p>}
+                    </div>
+                  </div>
                 </TableCell>
                 <TableCell className="tabular-nums">{f.productCount}</TableCell>
                 <TableCell className="tabular-nums">{f.position}</TableCell>

@@ -1,7 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { SIZE_UNIT_LABELS, SIZE_UNITS, type CategoryDTO, type CategoryInput } from "@aurascenthaus/shared";
 import { FormCheckbox, FormInput, FormSelect, FormTextarea, quietly, SubmitButton } from "@/components/form";
 import { Form } from "@/components/ui/form";
@@ -27,11 +27,24 @@ interface CategoryFormProps {
   onSubmit?: (input: CategoryInput) => void | Promise<void>;
 }
 
+/** A setting switched on by a parent category, so it can only be changed there. */
+function InheritedSetting({ label, parentName }: { label: string; parentName: string }) {
+  return (
+    <p className="rounded-md border border-dashed px-3 py-2 text-sm text-muted-foreground">
+      <span className="font-medium text-foreground">{label}: on</span>, set by {parentName} (or a category above it). Change it there.
+    </p>
+  );
+}
+
 export function CategoryForm({ category, parentId, categories, isPending, onSubmit }: CategoryFormProps) {
   const form = useForm({
     resolver: zodResolver(categoryFormSchema),
     defaultValues: toCategoryFormValues(category, parentId),
   });
+
+  // Settings the chosen parent passes down can't be switched off here.
+  const chosenParentId = useWatch({ control: form.control, name: "parentId" });
+  const parent = categories.find((c) => c.id === chosenParentId);
 
   // A category can't move inside itself.
   const blocked = category ? branchIds(categories, category.id) : new Set<string>();
@@ -66,7 +79,24 @@ export function CategoryForm({ category, parentId, categories, isPending, onSubm
           />
         </div>
         <FormCheckbox<CategoryFormValues> name="isActive" label="Active" description="Inactive categories and their products are hidden from shoppers." />
-        <FormCheckbox<CategoryFormValues> name="usesGender" label="Products are for men, women or unisex" description="Shows the gender field and filter. Subcategories inherit this." />
+        {parent?.hasFragrancePyramid ? (
+          <InheritedSetting label="Fragrance notes" parentName={parent.name} />
+        ) : (
+          <FormCheckbox<CategoryFormValues>
+            name="hasFragrancePyramid"
+            label="Products have fragrance notes"
+            description="Shows top, heart and base notes on the product form and page. Subcategories inherit this. Switching it off hides existing notes from shoppers but keeps them saved."
+          />
+        )}
+        {parent?.usesGender ? (
+          <InheritedSetting label="Men, women or unisex" parentName={parent.name} />
+        ) : (
+          <FormCheckbox<CategoryFormValues>
+            name="usesGender"
+            label="Products are for men, women or unisex"
+            description="Shows the gender field and filter. Subcategories inherit this."
+          />
+        )}
         <SubmitButton className="w-full" isPending={isPending}>
           {category ? "Save changes" : "Add category"}
         </SubmitButton>

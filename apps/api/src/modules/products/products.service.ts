@@ -23,6 +23,7 @@ import {
   toProductListItem,
   toVariantDTO,
 } from "./products.mapper.js";
+import { rankByUnitsSold, unitsSoldByProduct } from "./popularity.js";
 
 const slugTaken = async (slug: string) => !!(await prisma.product.findUnique({ where: { slug } }));
 
@@ -85,6 +86,8 @@ export async function listProducts(query: ProductQuery, opts: { admin?: boolean 
     }),
   };
 
+  if (query.sort === "popular") return listByUnitsSold(where, query);
+
   const orderBy: Prisma.ProductOrderByWithRelationInput =
     query.sort === "price_asc"
       ? { priceFrom: { sort: "asc", nulls: "last" } }
@@ -100,6 +103,28 @@ export async function listProducts(query: ProductQuery, opts: { admin?: boolean 
   ]);
 
   return paginated(rows.map(toProductListItem), total, query);
+}
+
+/**
+ * "Best sellers": ranks every matching product by units sold, then loads one page.
+ * Counting from the orders (rather than keeping a total on each product) means edited,
+ * cancelled and in-store sales are always counted correctly. Fine up to a few thousand products.
+ */
+async function listByUnitsSold(where: Prisma.ProductWhereInput, query: ProductQuery) {
+  const matching = await prisma.product.findMany({ where, select: { id: true }, orderBy: { createdAt: "desc" } });
+  const ids = matching.map((p) => p.id);
+  const ranked = rankByUnitsSold(ids, await unitsSoldByProduct(ids));
+
+  const { skip, take } = toSkipTake(query);
+  const pageIds = ranked.slice(skip, skip + take);
+  const rows = await prisma.product.findMany({ where: { id: { in: pageIds } }, include: productListInclude });
+  const byId = new Map(rows.map((r) => [r.id, r]));
+  const ordered = pageIds.flatMap((id) => {
+    const row = byId.get(id);
+    return row ? [toProductListItem(row)] : [];
+  });
+
+  return paginated(ordered, ids.length, query);
 }
 
 export async function getProductBySlug(slug: string) {

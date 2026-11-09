@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { SectionHeading } from "@/components/common";
 import { useScentFamilies } from "@/hooks/scent-families";
@@ -19,8 +20,15 @@ export function ScentFamiliesSection() {
             <li key={family.id}>
               <Link
                 href={`/shop?scent=${family.slug}`}
-                className="block rounded-full border px-6 py-2.5 font-heading text-lg transition-colors hover:border-foreground/50"
+                className="flex items-center gap-3 rounded-full border py-2 pr-6 pl-2 font-heading text-lg transition-colors hover:border-foreground/50"
               >
+                {family.imageUrl ? (
+                  <span className="relative size-8 shrink-0 overflow-hidden rounded-full bg-muted">
+                    <Image src={family.imageUrl} alt="" fill sizes="32px" className="object-cover" />
+                  </span>
+                ) : (
+                  <span className="pl-4" aria-hidden />
+                )}
                 {family.name}
               </Link>
             </li>

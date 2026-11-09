@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { requirePermission } from "../../middlewares/authorize.js";
+import { imageUpload } from "../uploads/uploads.middleware.js";
 import * as c from "./scent-families.controller.js";
 
 /** Public, mounted at /api/scent-families */
@@ -11,4 +12,5 @@ export const adminScentFamilyRouter = Router();
 adminScentFamilyRouter.get("/", requirePermission("products:read"), c.adminList);
 adminScentFamilyRouter.post("/", requirePermission("categories:write"), c.create);
 adminScentFamilyRouter.patch("/:id", requirePermission("categories:write"), c.update);
+adminScentFamilyRouter.post("/:id/image", requirePermission("categories:write"), imageUpload.single("image"), c.uploadImage);
 adminScentFamilyRouter.delete("/:id", requirePermission("categories:delete"), c.remove);

@@ -38,6 +38,8 @@ export function OrderSection({ orderId }: { orderId: string }) {
       {canUpdate && (
         <OrderStatusControl
           status={o.status}
+          isPaid={o.paidAt !== null}
+          customerEmail={o.customer?.email}
           isPending={updateStatus.isPending}
           onChange={(status) =>
             updateStatus

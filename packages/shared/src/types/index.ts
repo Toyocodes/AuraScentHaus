@@ -49,6 +49,8 @@ export interface CategoryDTO {
   /** Products here use men / women / unisex. Inherited from parent categories. */
   usesGender: boolean;
   defaultSizeUnit: SizeUnit;
+  /** The settings ticked on this category itself, without what it inherits. For the admin form. */
+  own: { hasFragrancePyramid: boolean; usesGender: boolean };
 }
 
 export type CategoryRef = Pick<CategoryDTO, "id" | "name" | "slug">;
@@ -77,6 +79,7 @@ export interface ScentFamilyDTO {
   name: string;
   slug: string;
   description: string | null;
+  imageUrl: string | null;
   position: number;
   isActive: boolean;
   productCount: number;

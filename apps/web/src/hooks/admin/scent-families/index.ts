@@ -3,3 +3,4 @@ export * from "./useAdminScentFamilies";
 export * from "./useCreateScentFamily";
 export * from "./useUpdateScentFamily";
 export * from "./useDeleteScentFamily";
+export * from "./useUploadScentFamilyImage";

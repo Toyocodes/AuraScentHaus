@@ -1,10 +1,9 @@
 "use client";
 
-import { useRef, type ReactNode } from "react";
-import Image from "next/image";
 import Link from "next/link";
-import { ImagePlus, Plus } from "lucide-react";
+import { Plus } from "lucide-react";
 import type { CategoryInput, CategoryWithCountDTO } from "@aurascenthaus/shared";
+import { ImagePickerButton } from "@/components/admin/common/image-picker-button";
 import { EmptyState } from "@/components/common";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -57,9 +56,18 @@ export function CategoriesTable({
           <TableRow key={c.id} className={c.isActive ? undefined : "opacity-60"}>
             <TableCell>
               <div className="flex items-center gap-3" style={{ paddingLeft: `${depth * 1.5}rem` }}>
-                <CategoryImage category={c} canEdit={canEdit} onUpload={onUploadImage} />
+                <ImagePickerButton
+                  imageUrl={c.imageUrl}
+                  name={c.name}
+                  canEdit={canEdit}
+                  onPick={(file) => onUploadImage?.(c.id, file)}
+                />
                 <span className={depth === 0 ? "font-heading text-lg" : "font-medium"}>{c.name}</span>
-                {c.hasFragrancePyramid && <Badge variant="outline">Notes</Badge>}
+                {c.hasFragrancePyramid && (
+                  <Badge variant="outline" title={c.own.hasFragrancePyramid ? "Fragrance notes are on" : "Fragrance notes are on, from a parent category"}>
+                    Notes
+                  </Badge>
+                )}
               </div>
             </TableCell>
             <TableCell className="text-muted-foreground">
@@ -120,58 +128,5 @@ export function CategoriesTable({
         ))}
       </TableBody>
     </Table>
-  );
-}
-
-function CategoryImage({
-  category,
-  canEdit,
-  onUpload,
-}: {
-  category: CategoryWithCountDTO;
-  canEdit: boolean;
-  onUpload?: (categoryId: string, file: File) => void | Promise<void>;
-}) {
-  const input = useRef<HTMLInputElement>(null);
-
-  const picture: ReactNode = category.imageUrl ? (
-    <Image src={category.imageUrl} alt="" fill sizes="36px" className="object-cover" />
-  ) : (
-    <ImagePlus className="size-4 text-muted-foreground" />
-  );
-
-  if (!canEdit) {
-    return <span className="relative grid size-9 shrink-0 place-items-center overflow-hidden rounded-sm bg-muted">{picture}</span>;
-  }
-
-  return (
-    <>
-      <button
-        type="button"
-        onClick={() => input.current?.click()}
-        aria-label={`Change the picture for ${category.name}`}
-        className="relative grid size-9 shrink-0 place-items-center overflow-hidden rounded-sm bg-muted hover:opacity-80"
-      >
-        {picture}
-      </button>
-      <input
-        ref={input}
-        type="file"
-        accept="image/jpeg,image/png,image/webp,image/avif"
-        className="sr-only"
-        tabIndex={-1}
-        aria-hidden
-        onChange={async (event) => {
-          const file = event.target.files?.[0];
-          event.target.value = "";
-          if (!file) return;
-          try {
-            await onUpload?.(category.id, file);
-          } catch {
-            // The parent has shown why it failed.
-          }
-        }}
-      />
-    </>
   );
 }

@@ -69,11 +69,11 @@ export function emailLayout({ title, preheader, body }: EmailLayoutInput): strin
             </tr>
             <tr>
               <td align="center" bgcolor="${color.panel}" class="pad" style="padding:24px 44px;border-top:1px solid ${color.line};font-family:${font.sans};font-size:12px;line-height:1.6;color:${color.muted};">
-                <a href="${env.WEB_URL}/products" style="color:${color.ink};text-decoration:none;">Shop perfumes</a>
+                <a href="${env.WEB_URL}/shop" style="color:${color.ink};text-decoration:none;">Shop</a>
                 &nbsp;&middot;&nbsp;
                 <a href="${env.WEB_URL}/account/orders" style="color:${color.ink};text-decoration:none;">My orders</a>
                 <br><br>
-                Signature fragrances, delivered across Nigeria.<br>
+                Fragrance for you and your home, delivered across Nigeria.<br>
                 &copy; ${year} AuraScentHaus. You received this email because of activity on your account.
               </td>
             </tr>

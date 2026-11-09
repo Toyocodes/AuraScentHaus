@@ -3,6 +3,7 @@ import { humanize } from "@/lib/format";
 
 const SORT_LABELS: Record<ProductSort, string> = {
   newest: "Newest",
+  popular: "Best sellers",
   price_asc: "Price: low to high",
   price_desc: "Price: high to low",
   name: "Name",

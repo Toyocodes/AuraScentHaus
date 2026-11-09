@@ -8,5 +8,10 @@ export interface UpdateScentFamilyVariables {
   input: UpdateScentFamilyInput;
 }
 
+export interface UploadScentFamilyImageVariables {
+  familyId: string;
+  file: File;
+}
+
 export type AdminScentFamilyListResponse = DataResponse<ScentFamilyDTO[]>;
 export type ScentFamilyResponse = DataResponse<ScentFamilyDTO>;

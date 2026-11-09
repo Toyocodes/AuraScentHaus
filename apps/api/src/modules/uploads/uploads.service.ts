@@ -41,13 +41,10 @@ export async function uploadProductImages(productId: string, files: Express.Mult
   return created.map(toImageDTO);
 }
 
-/** Upload a category's picture and return its public URL. */
-export async function uploadCategoryImage(categoryId: string, file: Express.Multer.File): Promise<string> {
-  const category = await prisma.category.findUnique({ where: { id: categoryId }, select: { id: true } });
-  if (!category) throw ApiError.notFound("Category");
-
+/** Uploads one picture to `folder` and returns its public URL. */
+async function uploadSingleImage(folder: string, file: Express.Multer.File): Promise<string> {
   const bucket = storage();
-  const path = `categories/${categoryId}/${randomUUID()}.${ALLOWED_IMAGE_TYPES[file.mimetype]}`;
+  const path = `${folder}/${randomUUID()}.${ALLOWED_IMAGE_TYPES[file.mimetype]}`;
   const { error } = await bucket.upload(path, file.buffer, {
     contentType: file.mimetype,
     cacheControl: "31536000",
@@ -55,6 +52,20 @@ export async function uploadCategoryImage(categoryId: string, file: Express.Mult
   });
   if (error) throw new ApiError(502, `Image upload failed: ${error.message}`, "UPLOAD_FAILED");
   return bucket.getPublicUrl(path).data.publicUrl;
+}
+
+/** Upload a category's picture and return its public URL. */
+export async function uploadCategoryImage(categoryId: string, file: Express.Multer.File): Promise<string> {
+  const category = await prisma.category.findUnique({ where: { id: categoryId }, select: { id: true } });
+  if (!category) throw ApiError.notFound("Category");
+  return uploadSingleImage(`categories/${categoryId}`, file);
+}
+
+/** Upload a scent family's picture and return its public URL. */
+export async function uploadScentFamilyImage(familyId: string, file: Express.Multer.File): Promise<string> {
+  const family = await prisma.scentFamily.findUnique({ where: { id: familyId }, select: { id: true } });
+  if (!family) throw ApiError.notFound("Scent family");
+  return uploadSingleImage(`scent-families/${familyId}`, file);
 }
 
 export async function deleteProductImage(productId: string, imageId: string) {
