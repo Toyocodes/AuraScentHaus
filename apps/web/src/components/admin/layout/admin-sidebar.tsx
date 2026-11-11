@@ -1,5 +1,6 @@
 import type { Role } from "@aurascenthaus/shared";
-import { SideNav } from "@/components/layout";
+// Straight from its file: the layout index also exports SiteShell, which loads data on the server.
+import { SideNav } from "@/components/layout/side-nav/side-nav";
 import { humanize } from "@/lib/format";
 import { adminNavFor } from "./admin-nav";
 

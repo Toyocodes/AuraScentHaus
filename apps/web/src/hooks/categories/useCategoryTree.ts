@@ -1,6 +1,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
+import { useServerCategoryTree } from "@/components/providers/category-tree-provider";
 import { queryKeys } from "../helper/query-keys";
 import { useHasMounted } from "../helper/useHasMounted";
 import { routes } from "../helper/routes";
@@ -14,6 +15,7 @@ import type { CategoryTreeResponse } from "./types";
 export function useCategoryTree() {
   const axios = useAxios();
   const hasMounted = useHasMounted();
+  const serverTree = useServerCategoryTree();
 
   const query = useQuery({
     queryKey: queryKeys.categories.tree(),
@@ -24,6 +26,11 @@ export function useCategoryTree() {
     staleTime: 10 * 60 * 1000,
   });
 
-  // Categories are used all over the page, including parts that hydrate late: see useHasMounted.
+  // When the server rendered the page with the categories (CategoryTreeProvider), every part of the
+  // page starts from that same list, so the menu is complete at once and never changes after loading.
+  // The fresh copy from the browser takes over when it arrives.
+  if (serverTree) return { ...query, data: query.data ?? serverTree };
+
+  // Otherwise wait until mounted: parts that hydrate late must match the server's HTML (see useHasMounted).
   return { ...query, data: hasMounted ? query.data : undefined };
 }

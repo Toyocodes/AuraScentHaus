@@ -107,7 +107,7 @@ async function main() {
       baseNotes: [],
       isFeatured: false,
       category: "scented-candles",
-      scents: ["amber", "gourmand"],
+      scents: [] as string[],
       variants: [
         { sizeMl: 200, sizeUnit: "G" as const, sku: "AHC-200", price: naira(28_000), stock: 20 },
         { sizeMl: 300, sizeUnit: "G" as const, sku: "AHC-300", price: naira(38_000), stock: 10 },
@@ -124,7 +124,7 @@ async function main() {
       baseNotes: [],
       isFeatured: false,
       category: "body-mists",
-      scents: ["floral", "fruity"],
+      scents: ["floral"],
       variants: [{ sizeMl: 150, sku: "PV-150", price: naira(18_000), stock: 30 }],
     },
   ];

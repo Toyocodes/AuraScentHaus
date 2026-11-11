@@ -1,13 +1,14 @@
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
-import type { CategoryDetailDTO, ProductDetailDTO } from "@aurascenthaus/shared";
+import type { CategoryDetailDTO, CategoryTreeDTO, ProductDetailDTO } from "@aurascenthaus/shared";
 
 const API_URL = process.env.API_URL ?? "http://localhost:4000";
 
 /**
- * The only server-side API calls in the web app: page titles and descriptions for search engines
- * and link previews. Page content still loads through the hooks. If the API is down this returns
- * null and the page uses a default title, so it can never stop a page from rendering.
+ * The web app's server-side API calls: page titles and descriptions for search engines and link
+ * previews, and the menu's categories (getCategoryTree). Page content still loads through the hooks.
+ * If the API is down this returns null and the page falls back to a default, so it can never stop
+ * a page from rendering.
  */
 async function fetchData<T>(path: string): Promise<T | null> {
   "use cache";
@@ -22,6 +23,12 @@ async function fetchData<T>(path: string): Promise<T | null> {
     return null;
   }
 }
+
+/**
+ * The menu's categories, so the page arrives with the whole navbar instead of adding the category
+ * items a moment later. Null if the API can't be reached; the browser then loads them as before.
+ */
+export const getCategoryTree = () => fetchData<CategoryTreeDTO[]>("/categories?tree=true");
 
 /** "scented-candles" → "Scented Candles", for when the API can't be reached. */
 const titleFromSlug = (slug: string) => slug.split("-").map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(" ");
