@@ -12,6 +12,7 @@ export const ADMIN_NAV: AdminNavItem[] = [
   { href: "/admin/categories", label: "Categories", permission: "categories:write" },
   { href: "/admin/scent-families", label: "Scent families", permission: "categories:write" },
   { href: "/admin/orders", label: "Orders", permission: "orders:read" },
+  { href: "/admin/delivery", label: "Delivery", permission: "admin:access" },
   { href: "/admin/customers", label: "Customers", permission: "customers:read" },
   { href: "/admin/users", label: "Team & roles", permission: "users:read" },
 ];

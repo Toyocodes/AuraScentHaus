@@ -15,17 +15,12 @@ export const STORE = {
   /** Where the shop is based, e.g. "Lekki, Lagos". Shown on the Contact page. */
   location: "Lagos, Nigeria",
   hours: "Monday to Saturday, 9am to 6pm",
-  /** How long delivery usually takes. */
-  delivery: {
-    lagos: "1 to 3 working days",
-    elsewhere: "3 to 7 working days",
-  },
   /** Days after delivery that unopened items can be returned. */
   returnDays: 2,
   /** Hours after delivery to report a damaged or wrong item. */
   reportProblemHours: 24,
   /** Shown at the top of the policy pages. Update it whenever you change a policy. */
-  policiesUpdated: "9 November 2026",
+  policiesUpdated: "11 November 2026",
 } as const;
 
 export const whatsappLink = (number: string) => `https://wa.me/${number}`;

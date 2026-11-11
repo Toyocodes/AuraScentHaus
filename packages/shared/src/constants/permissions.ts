@@ -22,6 +22,7 @@ export const PERMISSIONS = [
   "orders:update",
   "customers:read",
   "customers:write",
+  "delivery:write",
   // Super admin only
   "users:read",
   "users:manage-roles",
@@ -44,6 +45,7 @@ const ADMIN_PERMISSIONS = [
   "orders:update",
   "customers:read",
   "customers:write",
+  "delivery:write",
 ] as const satisfies readonly Permission[];
 
 export const ROLE_PERMISSIONS: Record<Role, readonly Permission[]> = {

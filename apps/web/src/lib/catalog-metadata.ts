@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
-import type { CategoryDetailDTO, CategoryTreeDTO, ProductDetailDTO } from "@aurascenthaus/shared";
+import type { CategoryDetailDTO, CategoryTreeDTO, DeliveryZoneDTO, ProductDetailDTO } from "@aurascenthaus/shared";
 
 const API_URL = process.env.API_URL ?? "http://localhost:4000";
 
@@ -29,6 +29,9 @@ async function fetchData<T>(path: string): Promise<T | null> {
  * items a moment later. Null if the API can't be reached; the browser then loads them as before.
  */
 export const getCategoryTree = () => fetchData<CategoryTreeDTO[]>("/categories?tree=true");
+
+/** The delivery options and fees on offer, for the shipping policy page. Null if the API can't be reached. */
+export const getDeliveryZones = () => fetchData<DeliveryZoneDTO[]>("/delivery-zones");
 
 /** "scented-candles" → "Scented Candles", for when the API can't be reached. */
 const titleFromSlug = (slug: string) => slug.split("-").map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(" ");

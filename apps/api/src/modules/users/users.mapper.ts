@@ -21,6 +21,7 @@ export function toAddressDTO(a: Address): AddressDTO {
     line2: a.line2,
     city: a.city,
     state: a.state,
+    deliveryZoneId: a.deliveryZoneId,
     country: a.country,
     postalCode: a.postalCode,
     isDefault: a.isDefault,

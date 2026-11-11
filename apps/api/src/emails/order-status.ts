@@ -18,6 +18,8 @@ export interface OrderStatusEmailInput {
   items: Array<{ productName: string; sizeMl: number; sizeUnit: SizeUnit; quantity: number }>;
   /** Lines of the delivery address, or null if there isn't one. */
   address: string[] | null;
+  /** The customer collects it from the store, so "shipped" means ready to collect. */
+  pickup: boolean;
 }
 
 interface Copy {
@@ -28,6 +30,22 @@ interface Copy {
 }
 
 function copyFor(order: OrderStatusEmailInput): Copy {
+  if (order.pickup && order.status === "SHIPPED") {
+    return {
+      subject: `Your order ${order.orderNumber} is ready to collect`,
+      eyebrow: "Ready for pickup",
+      heading: (n) => (n ? `It's ready, ${n}` : "Your order is ready to collect"),
+      message: "Your order is ready. You can collect it from our store during opening hours. Please bring your order number.",
+    };
+  }
+  if (order.pickup && order.status === "DELIVERED") {
+    return {
+      subject: `Your order ${order.orderNumber} has been collected`,
+      eyebrow: "Order collected",
+      heading: (n) => (n ? `Enjoy, ${n}` : "Thank you for collecting your order"),
+      message: "Your order has been collected. We hope you love it. If anything isn't right, get in touch and we'll help.",
+    };
+  }
   switch (order.status) {
     case "SHIPPED":
       return {

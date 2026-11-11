@@ -1,4 +1,4 @@
-import { formatNaira, formatSize, type SizeUnit } from "@aurascenthaus/shared";
+import { formatNaira, formatSize, type OrderDTO, type SizeUnit } from "@aurascenthaus/shared";
 import { env } from "../config/env.js";
 import { sendMail } from "../config/mailer.js";
 import { color, emailButton, emailEyebrow, emailHeading, emailLayout, escapeHtml, font } from "./layout.js";
@@ -14,6 +14,8 @@ export interface OrderEmailInput {
   items: Array<{ productName: string; sizeMl: number; sizeUnit: SizeUnit; quantity: number; lineTotal: number; imageUrl: string | null }>;
   /** Lines of the delivery address, or null if there isn't one. */
   address: string[] | null;
+  /** The delivery option chosen at checkout (null on older orders). */
+  delivery: OrderDTO["delivery"];
 }
 
 /** A photo, or the perfume's first letter on a sand square when it has none. */
@@ -55,9 +57,16 @@ export function renderOrderConfirmationEmail(order: OrderEmailInput, url: string
     )
     .join("");
 
-  const address = order.address
+  const pickup = order.delivery?.method === "PICKUP";
+  const deliveryTime = order.delivery?.time
+    ? `<p style="margin:6px 0 0;font-size:13px;color:${color.muted};">${pickup ? "Ready" : "Usually arrives in"} ${escapeHtml(order.delivery.time)}</p>`
+    : "";
+  const address = pickup
+    ? `<p style="margin:28px 0 6px;font-size:11px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:${color.goldText};">Store pickup</p>
+       <p style="margin:0;font-size:14px;line-height:1.6;color:${color.ink};">We'll let you know when your order is ready to collect from our store.</p>${deliveryTime}`
+    : order.address
     ? `<p style="margin:28px 0 6px;font-size:11px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:${color.goldText};">Delivering to</p>
-       <p style="margin:0;font-size:14px;line-height:1.6;color:${color.ink};">${order.address.map(escapeHtml).join("<br>")}</p>`
+       <p style="margin:0;font-size:14px;line-height:1.6;color:${color.ink};">${order.address.map(escapeHtml).join("<br>")}</p>${deliveryTime}`
     : "";
 
   return emailLayout({
@@ -77,7 +86,7 @@ export function renderOrderConfirmationEmail(order: OrderEmailInput, url: string
 
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-top:10px;">
         ${totalRow("Subtotal", formatNaira(order.subtotal))}
-        ${totalRow("Shipping", order.shippingFee > 0 ? formatNaira(order.shippingFee) : "Free")}
+        ${totalRow(pickup ? "Store pickup" : order.delivery ? `Delivery: ${order.delivery.option}` : "Delivery", formatNaira(order.shippingFee))}
         ${totalRow("Total", formatNaira(order.total), true)}
       </table>
 

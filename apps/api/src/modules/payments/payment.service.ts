@@ -1,5 +1,5 @@
 import { createHmac } from "node:crypto";
-import type { CheckoutInput, CheckoutResponse } from "@aurascenthaus/shared";
+import { pickDeliveryZone, type CheckoutInput, type CheckoutResponse } from "@aurascenthaus/shared";
 import { env } from "../../config/env.js";
 import { initializeTransaction, paystackSecret, verifyTransaction } from "../../config/paystack.js";
 import { prisma } from "../../config/prisma.js";
@@ -8,7 +8,6 @@ import type { PaymentStatus } from "../../generated/prisma/client.js";
 import { ApiError } from "../../utils/api-error.js";
 import { randomHex, safeEqual } from "../../utils/crypto.js";
 import { generateOrderNumber } from "../../utils/order-number.js";
-import { calculateShippingFee } from "../orders/shipping.js";
 import { addressLines, orderInclude, toOrderDTO } from "../orders/orders.mapper.js";
 
 /**
@@ -59,18 +58,8 @@ export async function startCheckout(
     throw ApiError.conflict("Some items in your cart are no longer available", "CART_UNAVAILABLE", problems);
   }
 
-  // Resolve shipping address.
-  let address;
-  if (input.addressId) {
-    address = await prisma.address.findFirst({ where: { id: input.addressId, userId: user.id } });
-    if (!address) throw ApiError.notFound("Address");
-  } else {
-    address = input.address!;
-    if (input.saveAddress) {
-      const hasAny = await prisma.address.count({ where: { userId: user.id } });
-      await prisma.address.create({ data: { ...address, userId: user.id, isDefault: hasAny === 0 } });
-    }
-  }
+  // Where it goes, and the delivery option the customer picked (its fee comes from the database).
+  const { address, zone } = await resolveCheckoutDelivery(user.id, input);
 
   const lines = cart.items.map((i) => ({
     variantId: i.variantId,
@@ -83,7 +72,7 @@ export async function startCheckout(
     lineTotal: i.variant.price * i.quantity,
   }));
   const subtotal = lines.reduce((sum, l) => sum + l.lineTotal, 0);
-  const shippingFee = calculateShippingFee(subtotal, address.state);
+  const shippingFee = zone.fee;
   const total = subtotal + shippingFee;
 
   const orderNumber = generateOrderNumber();
@@ -97,16 +86,19 @@ export async function startCheckout(
       shippingFee,
       total,
       note: input.note ?? null,
-      shipFullName: address.fullName,
-      shipPhone: address.phone,
-      shipLine1: address.line1,
-      shipLine2: address.line2 ?? null,
-      shipCity: address.city,
-      shipState: address.state,
-      shipCountry: address.country,
-      shipPostalCode: address.postalCode ?? null,
-      contactName: address.fullName,
-      contactPhone: address.phone,
+      deliveryMethod: input.deliveryMethod,
+      deliveryOption: zone.name,
+      deliveryTime: zone.deliveryTime,
+      shipFullName: address?.fullName ?? null,
+      shipPhone: address?.phone ?? null,
+      shipLine1: address?.line1 ?? null,
+      shipLine2: address?.line2 ?? null,
+      shipCity: address?.city ?? null,
+      shipState: address?.state ?? null,
+      shipCountry: address?.country ?? null,
+      shipPostalCode: address?.postalCode ?? null,
+      contactName: address?.fullName ?? input.pickupContact?.fullName ?? null,
+      contactPhone: address?.phone ?? input.pickupContact?.phone ?? null,
       items: { create: lines },
       payment: { create: { reference, amount: total } },
     },
@@ -118,7 +110,7 @@ export async function startCheckout(
       amount: total,
       reference,
       callbackUrl: `${env.WEB_URL}/checkout/callback`,
-      metadata: { orderId: order.id, orderNumber, userId: user.id },
+      metadata: { orderId: order.id, orderNumber, userId: user.id, delivery: zone.name, deliveryFee: shippingFee },
     });
     return { orderId: order.id, orderNumber, reference, authorizationUrl: tx.authorization_url };
   } catch (err) {
@@ -128,6 +120,38 @@ export async function startCheckout(
     ]);
     throw err;
   }
+}
+
+/**
+ * The delivery address (null for store pickup) and the delivery option the customer picked.
+ * Saves a new address if asked, and remembers the option on the address for next time,
+ * but only once the option is known to be valid.
+ */
+async function resolveCheckoutDelivery(userId: string, input: CheckoutInput) {
+  const zones = await prisma.deliveryZone.findMany();
+
+  if (input.deliveryMethod === "PICKUP") {
+    const picked = pickDeliveryZone(zones, { method: "PICKUP" });
+    if (!picked.ok) throw ApiError.badRequest(picked.message, picked.reason);
+    return { address: null, zone: picked.zone };
+  }
+
+  const saved = input.addressId ? await prisma.address.findFirst({ where: { id: input.addressId, userId } }) : null;
+  if (input.addressId && !saved) throw ApiError.notFound("Address");
+  const address = saved ?? input.address!;
+
+  const picked = pickDeliveryZone(zones, { method: "DELIVERY", zoneId: input.deliveryZoneId, country: address.country });
+  if (!picked.ok) throw ApiError.badRequest(picked.message, picked.reason);
+  const deliveryZoneId = picked.zone.id;
+
+  if (saved) {
+    if (saved.deliveryZoneId !== deliveryZoneId) await prisma.address.update({ where: { id: saved.id }, data: { deliveryZoneId } });
+  } else if (input.saveAddress) {
+    const hasAny = await prisma.address.count({ where: { userId } });
+    await prisma.address.create({ data: { ...input.address!, deliveryZoneId, userId, isDefault: hasAny === 0 } });
+  }
+
+  return { address, zone: picked.zone };
 }
 
 /**
@@ -204,6 +228,7 @@ export async function confirmPayment(reference: string) {
       total: order.total,
       items: order.items,
       address: addressLines(order),
+      delivery: toOrderDTO(order).delivery,
     }).catch((err) => console.error("Order confirmation email failed:", err));
   }
 

@@ -123,5 +123,6 @@ function notifyCustomer(order: OrderRow) {
     wasPaid: order.paidAt !== null,
     items: order.items,
     address: addressLines(order),
+    pickup: order.deliveryMethod === "PICKUP",
   }).catch((err) => console.error(`Order ${order.status.toLowerCase()} email failed:`, err));
 }

@@ -5,3 +5,4 @@ export * from "./catalog.js";
 export * from "./cart.js";
 export * from "./order.js";
 export * from "./admin.js";
+export * from "./delivery.js";

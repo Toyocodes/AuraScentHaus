@@ -8,7 +8,7 @@ import {
   type AdminUpdateOrderInput,
   type OrderDTO,
 } from "@aurascenthaus/shared";
-import { addressFormSchema, EMPTY_ADDRESS, rawAddressSchema, toAddressInput } from "@/components/address";
+import { addressFormSchema, EMPTY_ADDRESS, rawAddressSchema, toAddressFormValues, toAddressInput } from "@/components/address";
 
 export const CUSTOMER_TYPES = ["existing", "new", "walk_in"] as const;
 export const FULFILMENTS = ["collected", "delivery"] as const;
@@ -99,7 +99,7 @@ export function toOrderFormValues(order: OrderDTO): OrderFormValues {
     isPaid: order.paidAt !== null,
     fulfilment: a ? "delivery" : "collected",
     delivery: a
-      ? { fullName: a.fullName, phone: a.phone, line1: a.line1, line2: a.line2 ?? "", city: a.city, state: a.state }
+      ? toAddressFormValues(a)
       : EMPTY_ADDRESS,
     note: order.note ?? "",
   };

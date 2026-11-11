@@ -4,6 +4,7 @@ import { parseQuery } from "../../middlewares/validate.js";
 import { authenticate } from "../../middlewares/authenticate.js";
 import { requirePermission } from "../../middlewares/authorize.js";
 import { adminCategoryRouter } from "../categories/categories.routes.js";
+import { adminDeliveryZoneRouter } from "../delivery/delivery.routes.js";
 import { adminScentFamilyRouter } from "../scent-families/scent-families.routes.js";
 import { adminOrderRouter } from "../orders/orders.routes.js";
 import { adminProductRouter } from "../products/products.routes.js";
@@ -26,6 +27,7 @@ adminRouter.get("/stats", requirePermission("dashboard:view"), async (req, res) 
 adminRouter.use("/products", adminProductRouter);
 adminRouter.use("/categories", adminCategoryRouter);
 adminRouter.use("/scent-families", adminScentFamilyRouter);
+adminRouter.use("/delivery-zones", adminDeliveryZoneRouter);
 adminRouter.use("/orders", adminOrderRouter);
 adminRouter.use("/customers", requirePermission("customers:read"), adminCustomerRouter);
 adminRouter.use("/users", adminUserRouter);

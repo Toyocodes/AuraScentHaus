@@ -44,6 +44,10 @@ export function toOrderDTO(o: OrderRow, opts: { includeCustomer?: boolean } = {}
     currency: o.currency,
     note: o.note,
     shippingAddress: toShippingAddress(o),
+    delivery:
+      o.deliveryMethod && o.deliveryOption
+        ? { method: o.deliveryMethod, option: o.deliveryOption, time: o.deliveryTime }
+        : null,
     channel: o.channel,
     paymentMethod: o.paymentMethod,
     contact: {

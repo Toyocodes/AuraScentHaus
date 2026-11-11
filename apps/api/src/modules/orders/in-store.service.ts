@@ -195,6 +195,15 @@ export async function updateOrder(orderId: string, input: AdminUpdateOrderInput)
         "ONLINE_ORDER_LOCKED",
       );
     }
+    // An online order's delivery fee was paid for its option: pickup stays pickup, delivery keeps an address.
+    if (!inStore && input.delivery !== undefined && (order.deliveryMethod === "PICKUP" || input.delivery === null)) {
+      throw ApiError.badRequest(
+        order.deliveryMethod === "PICKUP"
+          ? "This order is for store pickup, so it has no delivery address."
+          : "An online order's delivery address can be changed but not removed.",
+        "ONLINE_DELIVERY_LOCKED",
+      );
+    }
     if (input.delivery !== undefined && !ADDRESS_EDITABLE.includes(order.status)) {
       throw ApiError.badRequest("The delivery address can't change once an order has shipped or been collected.");
     }

@@ -3,6 +3,7 @@ import { authenticate } from "./middlewares/authenticate.js";
 import { adminRouter } from "./modules/admin/admin.routes.js";
 import { authRouter } from "./modules/auth/auth.routes.js";
 import { cartRouter } from "./modules/cart/cart.routes.js";
+import { deliveryZoneRouter } from "./modules/delivery/delivery.routes.js";
 import { categoryRouter } from "./modules/categories/categories.routes.js";
 import { scentFamilyRouter } from "./modules/scent-families/scent-families.routes.js";
 import { orderRouter } from "./modules/orders/orders.routes.js";
@@ -22,6 +23,7 @@ routes.use("/auth", authRouter);
 routes.use("/products", productRouter);
 routes.use("/categories", categoryRouter);
 routes.use("/scent-families", scentFamilyRouter);
+routes.use("/delivery-zones", deliveryZoneRouter);
 routes.use("/payments", paymentRouter); // its routes authenticate individually
 
 // Signed-in customers

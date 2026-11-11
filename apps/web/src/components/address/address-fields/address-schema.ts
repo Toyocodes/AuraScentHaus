@@ -24,6 +24,19 @@ export const rawAddressSchema = z.object({
 
 export const EMPTY_ADDRESS = { fullName: "", phone: "", line1: "", line2: "", city: "", state: "" };
 
+/** Form values from a saved or order address (for editing). */
+export function toAddressFormValues(address: {
+  fullName: string;
+  phone: string;
+  line1: string;
+  line2: string | null;
+  city: string;
+  state: string;
+}) {
+  const { fullName, phone, line1, line2, city, state } = address;
+  return { fullName, phone, line1, line2: line2 ?? "", city, state };
+}
+
 export function toAddressInput(values: AddressFormValues, extra?: { isDefault?: boolean }): AddressInput {
   return { ...values, line2: values.line2?.trim() || undefined, country: "Nigeria", ...extra };
 }

@@ -1,4 +1,4 @@
-import type { Gender, OrderChannel, OrderStatus, PaymentMethod, PaymentStatus, Role, SizeUnit } from "../constants/index.js";
+import type { DeliveryMethod, DeliveryZoneKind, Gender, OrderChannel, OrderStatus, PaymentMethod, PaymentStatus, Role, SizeUnit } from "../constants/index.js";
 import type { StatsGranularity, StatsRangeKey } from "../utils/date-range.js";
 
 /** Shapes returned by the API (JSON-serialised, so dates are ISO strings). */
@@ -29,6 +29,8 @@ export interface AddressDTO {
   line2: string | null;
   city: string;
   state: string;
+  /** The delivery option picked the last time this address was used (preselected at checkout). */
+  deliveryZoneId: string | null;
   country: string;
   postalCode: string | null;
   isDefault: boolean;
@@ -83,6 +85,20 @@ export interface ScentFamilyDTO {
   position: number;
   isActive: boolean;
   productCount: number;
+}
+
+/** A delivery option (a Lagos axis, "Other Lagos area", "Other states" or "Store pickup"). */
+export interface DeliveryZoneDTO {
+  id: string;
+  name: string;
+  kind: DeliveryZoneKind;
+  /** The Lagos areas in this axis. Empty for the other kinds. */
+  areas: string[];
+  fee: number; // kobo
+  /** e.g. "1 to 2 working days". */
+  deliveryTime: string | null;
+  position: number;
+  isActive: boolean;
 }
 
 export type ScentFamilyRef = Pick<ScentFamilyDTO, "id" | "name" | "slug">;
@@ -193,6 +209,11 @@ export interface OrderDTO {
   note: string | null;
   /** null = collected in store (no delivery). */
   shippingAddress: ShippingAddressDTO | null;
+  /**
+   * The delivery option chosen at checkout, as it was then (e.g. "Ikeja Axis", "Store pickup").
+   * null on in-store sales and on orders placed before delivery options existed.
+   */
+  delivery: { method: DeliveryMethod; option: string; time: string | null } | null;
   channel: OrderChannel;
   paymentMethod: PaymentMethod;
   /** Who to contact about the order (the customer, or a walk-in buyer). */

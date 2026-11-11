@@ -21,6 +21,9 @@ export const queryKeys = {
   scentFamilies: {
     all: ["scent-families"] as const,
   },
+  deliveryZones: {
+    all: ["delivery-zones"] as const,
+  },
   cart: {
     all: ["cart"] as const,
   },
@@ -54,6 +57,9 @@ export const queryKeys = {
     },
     scentFamilies: {
       all: ["admin", "scent-families"] as const,
+    },
+    deliveryZones: {
+      all: ["admin", "delivery-zones"] as const,
     },
     orders: {
       all: ["admin", "orders"] as const,

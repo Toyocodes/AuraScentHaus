@@ -6,6 +6,7 @@ import { formatNaira, humanize } from "@/lib/format";
 
 /** Side panel: delivery, totals, payment and (for in-store sales) who served the customer. */
 export function OrderTotals({ order }: { order: OrderDTO }) {
+  const pickup = order.delivery?.method === "PICKUP";
   return (
     <aside className="h-fit space-y-4 rounded-sm border bg-card p-6 text-sm">
       <div className="space-y-1">
@@ -14,7 +15,7 @@ export function OrderTotals({ order }: { order: OrderDTO }) {
           <AddressText address={order.shippingAddress} />
         ) : (
           <>
-            <p className="font-medium">Collected in store</p>
+            <p className="font-medium">{pickup ? "Store pickup" : "Collected in store"}</p>
             {order.contact.name && <p className="text-muted-foreground">{order.contact.name}</p>}
             {order.contact.phone && <p className="text-muted-foreground">{order.contact.phone}</p>}
           </>
@@ -24,9 +25,14 @@ export function OrderTotals({ order }: { order: OrderDTO }) {
       <div className="space-y-1">
         <SummaryRow label="Subtotal" value={formatNaira(order.subtotal)} />
         <SummaryRow
-          label="Shipping"
-          value={order.shippingAddress ? (order.shippingFee ? formatNaira(order.shippingFee) : "Free") : "None"}
+          label={pickup ? "Store pickup" : order.delivery ? `Delivery · ${order.delivery.option}` : "Delivery"}
+          value={formatNaira(order.shippingFee)}
         />
+        {order.delivery?.time && (
+          <p className="text-xs text-muted-foreground">
+            {pickup ? "Ready in" : "Arrives in"} {order.delivery.time}
+          </p>
+        )}
         <SummaryRow label="Total" value={formatNaira(order.total)} strong />
       </div>
       <Separator />

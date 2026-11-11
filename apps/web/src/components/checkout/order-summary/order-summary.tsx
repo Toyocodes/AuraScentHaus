@@ -1,17 +1,26 @@
 import type { ReactNode } from "react";
-import type { CartItemDTO } from "@aurascenthaus/shared";
+import type { CartItemDTO, DeliveryZoneDTO } from "@aurascenthaus/shared";
 import { SummaryRow } from "@/components/common";
 import { Separator } from "@/components/ui/separator";
 import { formatNaira } from "@/lib/format";
 
+/**
+ * The delivery option for the order so far: the option that applies, or why there isn't one yet
+ * (e.g. "Choose your area"), or null while the options load.
+ */
+export type DeliveryQuote = { zone: DeliveryZoneDTO } | { message: string } | null;
+
 interface OrderSummaryProps {
   items: CartItemDTO[];
   subtotal: number;
+  delivery: DeliveryQuote;
   /** The pay button. */
   children?: ReactNode;
 }
 
-export function OrderSummary({ items, subtotal, children }: OrderSummaryProps) {
+export function OrderSummary({ items, subtotal, delivery, children }: OrderSummaryProps) {
+  const zone = delivery && "zone" in delivery ? delivery.zone : null;
+
   return (
     <aside className="h-fit space-y-4 rounded-sm border bg-card p-6">
       <h2 className="text-xl">Order summary</h2>
@@ -30,8 +39,24 @@ export function OrderSummary({ items, subtotal, children }: OrderSummaryProps) {
         </ul>
       )}
       <Separator />
-      <SummaryRow label="Subtotal" value={formatNaira(subtotal)} strong />
-      <p className="text-xs text-muted-foreground">Shipping is added on the payment page if it applies.</p>
+      <div className="space-y-2">
+        <SummaryRow label="Subtotal" value={formatNaira(subtotal)} />
+        {zone ? (
+          <div className="space-y-0.5">
+            <SummaryRow label={zone.kind === "PICKUP" ? zone.name : `Delivery · ${zone.name}`} value={formatNaira(zone.fee)} />
+            {zone.deliveryTime && (
+              <p className="text-xs text-muted-foreground">
+                {zone.kind === "PICKUP" ? "Ready in" : "Arrives in"} {zone.deliveryTime}
+              </p>
+            )}
+          </div>
+        ) : (
+          <SummaryRow label="Delivery" value={delivery ? "—" : "…"} />
+        )}
+        {delivery && "message" in delivery && <p className="text-xs text-muted-foreground">{delivery.message}</p>}
+      </div>
+      <Separator />
+      <SummaryRow label="Total" value={zone ? formatNaira(subtotal + zone.fee) : "—"} strong />
       {children}
     </aside>
   );

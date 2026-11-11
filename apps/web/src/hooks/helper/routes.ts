@@ -19,6 +19,7 @@ export const routes = {
   FETCH_CATEGORIES: "/categories",
   FETCH_SINGLE_CATEGORY: (slug: string) => `/categories/${id(slug)}`,
   FETCH_SCENT_FAMILIES: "/scent-families",
+  FETCH_DELIVERY_ZONES: "/delivery-zones",
 
   // ── Cart (signed in) ──
   GET_CART: "/cart",
@@ -68,6 +69,10 @@ export const routes = {
   ADMIN_SCENT_FAMILIES: "/admin/scent-families",
   ADMIN_SCENT_FAMILY: (familyId: string) => `/admin/scent-families/${id(familyId)}`,
   ADMIN_SCENT_FAMILY_IMAGE: (familyId: string) => `/admin/scent-families/${id(familyId)}/image`,
+
+  // ── Admin: delivery options ──
+  ADMIN_DELIVERY_ZONES: "/admin/delivery-zones",
+  ADMIN_DELIVERY_ZONE: (zoneId: string) => `/admin/delivery-zones/${id(zoneId)}`,
 
   // ── Admin: orders ── (POST ADMIN_ORDERS = new in-store sale, PATCH ADMIN_ORDER = edit)
   ADMIN_ORDERS: "/admin/orders",

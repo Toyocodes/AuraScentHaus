@@ -18,7 +18,7 @@ export function CartSummary({ itemCount, subtotal, isSignedIn = false, isSaving 
     <aside className="h-fit space-y-4 rounded-sm border bg-card p-6">
       <h2 className="text-xl">Summary</h2>
       <SummaryRow label="Items" value={itemCount} />
-      <SummaryRow label="Shipping" value="Calculated at checkout" />
+      <SummaryRow label="Delivery" value="Added at checkout" />
       <Separator />
       <SummaryRow label="Subtotal" value={formatNaira(subtotal)} strong />
       {isSaving ? (
