@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import type { OrderDTO } from "@aurascenthaus/shared";
 import { formatDateTime } from "@/lib/format";
 import { OrderChannelBadge } from "../order-channel-badge/order-channel-badge";
+import { OrderProgress } from "../order-progress/order-progress";
 import { OrderStatusBadge } from "../order-status-badge/order-status-badge";
 import { OrderItems } from "./order-items";
 import { OrderTotals } from "./order-totals";
@@ -26,6 +27,7 @@ export function OrderDetail({ order, actions }: OrderDetailProps) {
           {actions}
         </div>
         <p className="text-sm text-muted-foreground">Placed {formatDateTime(order.createdAt)}</p>
+        <OrderProgress order={order} />
         <OrderItems items={order.items} />
         {order.note && (
           <p className="text-sm">

@@ -231,6 +231,28 @@ export interface OrderDTO {
   customer?: Pick<UserDTO, "id" | "email" | "name" | "phone"> | null;
   createdAt: string;
   paidAt: string | null;
+  /** When the order reached each later step (null = not yet), for the progress tracker. */
+  processingAt: string | null;
+  shippedAt: string | null;
+  deliveredAt: string | null;
+  cancelledAt: string | null;
+}
+
+/** An in-app notification (the bell): a new paid order for admins, an order update for customers. */
+export interface NotificationDTO {
+  id: string;
+  title: string;
+  body: string;
+  /** Where clicking it goes. */
+  link: string | null;
+  readAt: string | null;
+  createdAt: string;
+}
+
+/** GET /notifications */
+export interface NotificationsResponse {
+  data: NotificationDTO[];
+  unreadCount: number;
 }
 
 /** GET /admin/products/sellable: every size, for the in-store order form. */

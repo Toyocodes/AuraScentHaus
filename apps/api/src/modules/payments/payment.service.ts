@@ -4,6 +4,7 @@ import { env } from "../../config/env.js";
 import { initializeTransaction, paystackSecret, verifyTransaction } from "../../config/paystack.js";
 import { prisma } from "../../config/prisma.js";
 import { sendOrderConfirmationEmail } from "../../emails/order-confirmation.js";
+import { newPaidOrderNotification, notifyAdmins, quietly } from "../notifications/notifications.service.js";
 import type { PaymentStatus } from "../../generated/prisma/client.js";
 import { ApiError } from "../../utils/api-error.js";
 import { randomHex, safeEqual } from "../../utils/crypto.js";
@@ -116,7 +117,7 @@ export async function startCheckout(
   } catch (err) {
     await prisma.$transaction([
       prisma.payment.update({ where: { reference }, data: { status: "FAILED" } }),
-      prisma.order.update({ where: { id: order.id }, data: { status: "CANCELLED" } }),
+      prisma.order.update({ where: { id: order.id }, data: { status: "CANCELLED", cancelledAt: new Date() } }),
     ]);
     throw err;
   }
@@ -230,6 +231,16 @@ export async function confirmPayment(reference: string) {
       address: addressLines(order),
       delivery: toOrderDTO(order).delivery,
     }).catch((err) => console.error("Order confirmation email failed:", err));
+
+    notifyAdmins(
+      newPaidOrderNotification({
+        id: order.id,
+        orderNumber: order.orderNumber,
+        total: order.total,
+        customerName: order.contactName ?? order.user?.name ?? order.user?.email ?? null,
+        pickup: order.deliveryMethod === "PICKUP",
+      }),
+    ).catch(quietly("New order"));
   }
 
   return { fulfilledNow, orderId: payment.orderId };

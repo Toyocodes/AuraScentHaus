@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { NotificationBell } from "@/components/notifications";
 import { AdminSignOut } from "./admin-sign-out";
 
 export function AdminHeader() {
@@ -10,6 +11,7 @@ export function AdminHeader() {
           <span className="ml-2 text-[0.625rem] tracking-[0.3em] text-espresso-foreground/60">Admin</span>
         </Link>
         <div className="flex items-center gap-6">
+          <NotificationBell tone="dark" />
           <Link href="/" className="text-xs tracking-[0.2em] text-espresso-foreground/70 uppercase hover:text-espresso-foreground">
             View store →
           </Link>

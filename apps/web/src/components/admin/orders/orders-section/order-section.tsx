@@ -4,7 +4,7 @@ import Link from "next/link";
 import { Pencil } from "lucide-react";
 import { toast } from "sonner";
 import { EmptyState, QueryError } from "@/components/common";
-import { OrderDetail, OrderDetailSkeleton } from "@/components/order";
+import { isPickupOrder, OrderDetail, OrderDetailSkeleton } from "@/components/order";
 import { Button } from "@/components/ui/button";
 import { useAdminOrder, useUpdateOrderStatus } from "@/hooks/admin/orders";
 import { usePermission } from "@/hooks/auth";
@@ -38,13 +38,14 @@ export function OrderSection({ orderId }: { orderId: string }) {
       {canUpdate && (
         <OrderStatusControl
           status={o.status}
+          pickup={isPickupOrder(o)}
           isPaid={o.paidAt !== null}
           customerEmail={o.customer?.email}
           isPending={updateStatus.isPending}
           onChange={(status) =>
             updateStatus
               .mutateAsync({ orderId, status })
-              .then(() => void toast.success(`Order marked ${humanize(status).toLowerCase()}.`))
+              .then(() => void toast.success(`Order updated: ${humanize(status).toLowerCase()}.`))
               .catch(toastFailure("We couldn't update this order."))
           }
         />

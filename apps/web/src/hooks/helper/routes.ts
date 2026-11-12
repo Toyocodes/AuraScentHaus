@@ -41,6 +41,11 @@ export const routes = {
   FETCH_USER_ORDERS: "/orders",
   FETCH_USER_ORDER: (orderId: string) => `/orders/${id(orderId)}`,
 
+  // ── Notifications (signed in: the bell) ──
+  FETCH_NOTIFICATIONS: "/notifications",
+  READ_NOTIFICATION: (notificationId: string) => `/notifications/${id(notificationId)}/read`,
+  READ_ALL_NOTIFICATIONS: "/notifications/read-all",
+
   // ── Payments (Paystack) ──
   INITIALIZE_PAYMENT: "/payments/checkout",
   VERIFY_PAYMENT: (reference: string) => `/payments/verify/${id(reference)}`,

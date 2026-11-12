@@ -95,6 +95,7 @@ model User {
   /// In-store sales this admin made.
   attendedOrders Order[]   @relation("OrderAttendant")
   addresses      Address[]
+  notifications  Notification[]
 
   @@map("users")
 }
@@ -368,9 +369,14 @@ model Order {
   deliveryOption String?
   deliveryTime   String?
 
-  paidAt    DateTime?
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  paidAt       DateTime?
+  /// When the order reached each later step, for the progress tracker. Set when the status changes.
+  processingAt DateTime?
+  shippedAt    DateTime?
+  deliveredAt  DateTime?
+  cancelledAt  DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
 
   user       User?       @relation("CustomerOrders", fields: [userId], references: [id], onDelete: Restrict)
   attendedBy User?       @relation("OrderAttendant", fields: [attendedById], references: [id], onDelete: SetNull)
@@ -421,4 +427,21 @@ model Payment {
   order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
 
   @@map("payments")
+}
+
+/// In-app notifications (the bell): a new paid order for each admin, an order update for the customer.
+model Notification {
+  id        String    @id @default(cuid())
+  userId    String
+  title     String
+  body      String
+  /// Where clicking it goes, e.g. /admin/orders/abc or /account/orders/abc.
+  link      String?
+  readAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+  @@map("notifications")
 }

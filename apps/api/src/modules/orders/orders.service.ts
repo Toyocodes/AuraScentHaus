@@ -9,6 +9,7 @@ import type { Prisma } from "../../generated/prisma/client.js";
 import { ApiError } from "../../utils/api-error.js";
 import { paginated, toSkipTake } from "../../utils/pagination.js";
 import { sendOrderStatusEmail, type NotifiedStatus } from "../../emails/order-status.js";
+import { notifyUser, quietly, type NotificationInput } from "../notifications/notifications.service.js";
 import { addressLines, orderInclude, toOrderDTO, type OrderRow } from "./orders.mapper.js";
 
 // ─── Customer ────────────────────────────────────────────────
@@ -95,11 +96,50 @@ export async function adminUpdateOrderStatus(orderId: string, next: OrderStatus)
       }
     }
 
-    return tx.order.update({ where: { id: orderId }, data: { status: next }, include: orderInclude });
+    return tx.order.update({
+      where: { id: orderId },
+      data: { status: next, ...(STEP_TIME[next] && { [STEP_TIME[next]]: new Date() }) },
+      include: orderInclude,
+    });
   });
 
   notifyCustomer(updated);
+  if (updated.userId) {
+    const message = statusNotification(updated);
+    if (message) notifyUser(updated.userId, message).catch(quietly(`Order ${next.toLowerCase()}`));
+  }
   return toOrderDTO(updated, { includeCustomer: true });
+}
+
+/** The order column that records when it reached each step, for the progress tracker. */
+const STEP_TIME: Partial<Record<OrderStatus, "processingAt" | "shippedAt" | "deliveredAt" | "cancelledAt">> = {
+  PROCESSING: "processingAt",
+  SHIPPED: "shippedAt",
+  DELIVERED: "deliveredAt",
+  CANCELLED: "cancelledAt",
+};
+
+/** The bell message the customer gets for a status change (none for an unpaid checkout being cancelled). */
+function statusNotification(order: OrderRow): NotificationInput | null {
+  const pickup = order.deliveryMethod === "PICKUP";
+  const link = `/account/orders/${order.id}`;
+  const n = order.orderNumber;
+  switch (order.status) {
+    case "PROCESSING":
+      return { title: "We're preparing your order", body: `${n} is being packed.`, link };
+    case "SHIPPED":
+      return pickup
+        ? { title: "Ready to collect", body: `${n} is ready for pickup at our store.`, link }
+        : { title: "Your order is on its way", body: `${n} is out for delivery.`, link };
+    case "DELIVERED":
+      return pickup
+        ? { title: "Order collected", body: `${n} has been collected. Enjoy!`, link }
+        : { title: "Order delivered", body: `${n} has been delivered. Enjoy!`, link };
+    case "CANCELLED":
+      return order.paidAt ? { title: "Order cancelled", body: `${n} was cancelled. Your refund is on its way.`, link } : null;
+    default:
+      return null;
+  }
 }
 
 const NOTIFIED: readonly OrderStatus[] = ["SHIPPED", "DELIVERED", "CANCELLED"] satisfies NotifiedStatus[];

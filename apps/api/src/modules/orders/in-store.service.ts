@@ -160,6 +160,7 @@ export async function createInStoreOrder(actor: Actor, input: AdminCreateOrderIn
         total,
         note: input.note ?? null,
         paidAt,
+        ...(input.isPaid && !input.delivery && { deliveredAt: now }),
         ...deliveryFields(input.delivery ?? null),
         items: { create: lines },
         payment: {
@@ -241,6 +242,7 @@ export async function updateOrder(orderId: string, input: AdminUpdateOrderInput)
       const now = new Date();
       data.paidAt = now;
       data.status = paidStatus(hasDelivery);
+      if (!hasDelivery) data.deliveredAt = now;
       payment.status = "SUCCESS";
       payment.paidAt = now;
     }

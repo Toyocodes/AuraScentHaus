@@ -78,5 +78,9 @@ export function toOrderDTO(o: OrderRow, opts: { includeCustomer?: boolean } = {}
     ...(opts.includeCustomer && { customer: o.user }),
     createdAt: o.createdAt.toISOString(),
     paidAt: o.paidAt?.toISOString() ?? null,
+    processingAt: o.processingAt?.toISOString() ?? null,
+    shippedAt: o.shippedAt?.toISOString() ?? null,
+    deliveredAt: o.deliveredAt?.toISOString() ?? null,
+    cancelledAt: o.cancelledAt?.toISOString() ?? null,
   };
 }

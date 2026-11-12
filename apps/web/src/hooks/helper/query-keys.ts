@@ -38,6 +38,9 @@ export const queryKeys = {
     list: (params: object) => [...queryKeys.orders.all, "list", params] as const,
     detail: (orderId: string) => [...queryKeys.orders.all, "detail", orderId] as const,
   },
+  notifications: {
+    all: ["notifications"] as const,
+  },
   payments: {
     verify: (reference: string) => ["payments", "verify", reference] as const,
   },

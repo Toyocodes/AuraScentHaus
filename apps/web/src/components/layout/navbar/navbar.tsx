@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { CategoryTreeDTO, ScentFamilyDTO, UserDTO } from "@aurascenthaus/shared";
+import { NotificationBell } from "@/components/notifications";
 import { AccountMenu } from "./account-menu";
 import { CartButton } from "./cart-button";
 import { MegaMenu } from "./mega-menu";
@@ -32,6 +33,7 @@ export function Navbar({ user = null, cartCount = 0, onSignOut, isUserPending, c
           </Link>
 
           <div className="flex items-center justify-end gap-1">
+            {user && <NotificationBell />}
             <AccountMenu user={user} onSignOut={onSignOut} isPending={isUserPending} />
             <CartButton count={cartCount} />
           </div>

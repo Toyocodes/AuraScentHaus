@@ -6,6 +6,7 @@ import { cartRouter } from "./modules/cart/cart.routes.js";
 import { deliveryZoneRouter } from "./modules/delivery/delivery.routes.js";
 import { categoryRouter } from "./modules/categories/categories.routes.js";
 import { scentFamilyRouter } from "./modules/scent-families/scent-families.routes.js";
+import { notificationRouter } from "./modules/notifications/notifications.routes.js";
 import { orderRouter } from "./modules/orders/orders.routes.js";
 import { paymentRouter } from "./modules/payments/payment.routes.js";
 import { productRouter } from "./modules/products/products.routes.js";
@@ -30,6 +31,7 @@ routes.use("/payments", paymentRouter); // its routes authenticate individually
 routes.use("/users", authenticate, userRouter);
 routes.use("/cart", authenticate, cartRouter);
 routes.use("/orders", authenticate, orderRouter);
+routes.use("/notifications", authenticate, notificationRouter); // the bell, for customers and admins
 
 // Admin (RBAC inside)
 routes.use("/admin", adminRouter);
